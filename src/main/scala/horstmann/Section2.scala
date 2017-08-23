@@ -38,7 +38,6 @@ object Section2 extends App {
       var ret = 1L;
       for (i <- 0 to s.codePointCount(0, s.length) - 1) {
         println(ret)
-        println(s.codePointBefore()
         ret = ret * s.codePointAt(i)
       }
       ret
@@ -52,7 +51,7 @@ object Section2 extends App {
       reduce(1, (left: Long, right: Long) => left * right) else 0
   }
 
-  object q8 {
+  object q89 {
     def codePointProduct(s: String): Long = if (s.nonEmpty) {
       def loop(r: Long, str: String): Long = {
         val ret = r * str.head
