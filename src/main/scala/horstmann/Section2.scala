@@ -74,12 +74,6 @@ object Section2 extends App {
 
   object q10 {
 
-    //    def pow(x: Double, n: Int): Double = if (n == 0) 1
-    //    else if ((n > 0) && (n % 2 > 0)) x * pow(x, n - 1)
-    //    else if (n < 0) 1 / pow(x, n)
-    //    else pow(pow(x, n / 2), 2)
-
-
     def isEven(n: Int) = n % 2 == 0
 
     def isOdd(n: Int) = !isEven(n)
@@ -135,6 +129,7 @@ object Section2 extends App {
   println("2 pow -1:" + q10.pow(2, -1) + ", Math.pow:" + Math.pow(2, -1))
   println("2 pow 0:" + q10.pow(2, 0) + ", Math.pow:" + Math.pow(2, 0))
   println("3 pow 3:" + q10.pow(3, 3) + ", Math.pow:" + Math.pow(3, 3))
-
+  println("2 pow 4:" + q10.pow(2, 4) + ", Math.pow:" + Math.pow(2, 4))
+  println("2 pow 4:" + q10.pow(2, 32) + ", Math.pow:" + Math.pow(2, 32))
 
 }
