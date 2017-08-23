@@ -72,6 +72,27 @@ object Section2 extends App {
     } else 0
   }
 
+  object q10 {
+
+    //    def pow(x: Double, n: Int): Double = if (n == 0) 1
+    //    else if ((n > 0) && (n % 2 > 0)) x * pow(x, n - 1)
+    //    else if (n < 0) 1 / pow(x, n)
+    //    else pow(pow(x, n / 2), 2)
+
+
+    def isEven(n: Int) = n % 2 == 0
+
+    def isOdd(n: Int) = !isEven(n)
+
+    //Horstmann jokes
+    def pow(x: Double, n: Int): Double =
+      if (n > 0 && isEven(n)) pow(x, n / 2) * pow(x, n / 2)
+      else if (x > 0 && isOdd(n)) x * pow(x, n - 1)
+      else if (n == 0) 1
+      else 1 / pow(x, -n) //n<0
+
+  }
+
 
   print(q1.signum(-12.3))
   print(", " + q1.signum(0))
@@ -105,5 +126,15 @@ object Section2 extends App {
       ", empty:" + q89.codePointProduct("") +
       ", aegean 42:" + q89.codePointProduct(aegean42))
 
-  
+  assert(q10.isEven(2))
+  assert(q10.isOdd(1))
+  assert(q10.isOdd(-3))
+  assert(q10.isEven(-62))
+
+  println("2 pow 2:" + q10.pow(2, 2) + ", Math.pow:" + Math.pow(2, 2))
+  println("2 pow -1:" + q10.pow(2, -1) + ", Math.pow:" + Math.pow(2, -1))
+  println("2 pow 0:" + q10.pow(2, 0) + ", Math.pow:" + Math.pow(2, 0))
+  println("3 pow 3:" + q10.pow(3, 3) + ", Math.pow:" + Math.pow(3, 3))
+
+
 }
