@@ -1,7 +1,6 @@
 package horstmann
 
 import java.nio.charset.Charset
-import java.util.function.LongBinaryOperator
 
 object Section2 extends App {
 
@@ -33,12 +32,13 @@ object Section2 extends App {
   object q6 {
 
     def codePointProduct(s: String): Long = if (s.nonEmpty) {
-      println(s.codePointCount(0, s.length))
-      println(s.length)
       var ret = 1L;
-      for (i <- 0 to s.codePointCount(0, s.length) - 1) {
-        println(ret)
-        ret = ret * s.codePointAt(i)
+      for (i <- 0 to s.length - 1) {
+        val codePoint = s.codePointAt(i)
+        val char = s.charAt(i)
+        if ((char.isHighSurrogate) || (!char.isSurrogate)) {
+          ret = ret * codePoint
+        }
       }
       ret
     } else 0L
@@ -53,44 +53,57 @@ object Section2 extends App {
 
   object q89 {
     def codePointProduct(s: String): Long = if (s.nonEmpty) {
-      def loop(r: Long, str: String): Long = {
-        val ret = r * str.head
-        if (str.tail.nonEmpty) loop(ret, str.tail) else ret
+      def loop(r: Long, str: String, high: Option[Char]): Long = {
+        val char = str.head
+        var ret = r
+        if (!char.isSurrogate) {
+          ret = r * char
+        } else if (char.isLowSurrogate) {
+          high match {
+            case Some(_) => ret = r * Character.toCodePoint(high.get, char)
+            case None => ret = r * char
+          }
+        }
+
+        if (str.tail.nonEmpty) loop(ret, str.tail, Some(char)) else ret
       }
 
-      loop(1, s)
+      loop(1, s, None)
     } else 0
   }
 
 
-  //  print(q1.signum(-12.3))
-  //  print(", " + q1.signum(0))
-  //  println(", " + q1.signum(45))
-  //  println(q2.a.getClass.getName)
-  //  q3
-  //  q4
-  //  println()
-  //  q5.countdown(11)
-  //  q6.printChars("你好")
-  //  println("\n" + q6.codePointProduct("你好"))
+  print(q1.signum(-12.3))
+  print(", " + q1.signum(0))
+  println(", " + q1.signum(45))
+  println(q2.a.getClass.getName)
+  q3
+  q4
+  println()
+  q5.countdown(11)
+
+  //q6-q8
+  q6.printChars("你好")
+  println("\n" + q6.codePointProduct("你好"))
+
   val bytes = Array[Byte](/*Aegean 4 (U+1010A)*/ -16, -112, -124, -118,
     /*Aegean 2 (U+10108) */ -16, -112, -124, -120)
   val aegean42 = new String(bytes, Charset.forName("UTF-8"))
   //q6.printChars(aegean42)
-  //println(
-    //    "\n" + q6.codePointProduct("Hello") +
-    //      ",empty:" + q6.codePointProduct("") +
-    //" aegean 42:" + q6.codePointProduct(aegean42))
+  println(
+    "\nhello:" + q6.codePointProduct("Hello") +
+      ", empty:" + q6.codePointProduct("") +
+      ", aegean 42:" + q6.codePointProduct(aegean42))
 
-    println(
-  //    //    "\n" + q7.codePointProduct("Hello") +
-  //    //      ",empty:" + q7.codePointProduct("") +
-      " aegean 42:" + q7.codePointProduct(aegean42))
-  //
-  //  println(
-  //    //    "\n" + q8.codePointProduct("Hello") +
-  //    //      ",empty:" + q8.codePointProduct("") +
-  //    " aegean 42:" + q8.codePointProduct(aegean42))
-  //
+  println(
+    "\nhello:" + q7.codePointProduct("Hello") +
+      ", empty:" + q7.codePointProduct("") +
+      ", aegean 42:" + q7.codePointProduct(aegean42))
 
+  println(
+    "\nhello:" + q89.codePointProduct("Hello") +
+      ", empty:" + q89.codePointProduct("") +
+      ", aegean 42:" + q89.codePointProduct(aegean42))
+
+  
 }
