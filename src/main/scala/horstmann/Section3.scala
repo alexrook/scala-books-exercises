@@ -91,7 +91,11 @@ object Section3 extends App {
   }
 
   object q3 {
-    def swapPos[T](a: Seq[T]): Seq[String] = ???
+    def swapPos[T](a: Seq[T]): Seq[T] =
+      for {
+        i <- 1 to a.length by 2
+        k <- (i) to (i - 1) by -1 if k < a.length
+      } yield a(k)
   }
 
   for (x <- 0 until 3; y <- 0 until 3) matrix0(x)(y) = x + y
@@ -108,7 +112,8 @@ object Section3 extends App {
   q2.swapPos(q2TestData02)
   printArray(q2TestData02)
   println("\n---q3")
-  val q2TestData03 = Array(1, 2, 3, 4, 5)
-  //printArray(q3.swapPos(q2TestData03))
-
+  val q3TestData01 = Array(1, 2, 3, 4, 5)
+  printArray(q3.swapPos(q3TestData01))
+  val q3TestData02 = Array(1, 2, 3, 4)
+  printArray(q3.swapPos(q3TestData02))
 }
