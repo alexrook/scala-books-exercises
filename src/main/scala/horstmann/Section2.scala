@@ -1,7 +1,6 @@
 package horstmann
 
 import java.nio.charset.Charset
-import java.util.function.LongBinaryOperator
 
 object Section2 extends App {
 
@@ -37,7 +36,6 @@ object Section2 extends App {
       for (i <- 0 to s.length - 1) {
         val codePoint = s.codePointAt(i)
         val char = s.charAt(i)
-
         if ((char.isHighSurrogate) || (!char.isSurrogate)) {
           ret = ret * codePoint
         }
@@ -53,7 +51,7 @@ object Section2 extends App {
       reduce(1, (left: Long, right: Long) => left * right) else 0
   }
 
-  object q8 {
+  object q89 {
     def codePointProduct(s: String): Long = if (s.nonEmpty) {
       def loop(r: Long, str: String, high: Option[Char]): Long = {
         val char = str.head
@@ -72,6 +70,21 @@ object Section2 extends App {
 
       loop(1, s, None)
     } else 0
+  }
+
+  object q10 {
+
+    def isEven(n: Int) = n % 2 == 0
+
+    def isOdd(n: Int) = !isEven(n)
+
+    //Horstmann jokes
+    def pow(x: Double, n: Int): Double =
+      if (n > 0 && isEven(n)) pow(x, n / 2) * pow(x, n / 2)
+      else if (x > 0 && isOdd(n)) x * pow(x, n - 1)
+      else if (n == 0) 1
+      else 1 / pow(x, -n) //n<0
+
   }
 
 
@@ -103,9 +116,20 @@ object Section2 extends App {
       ", aegean 42:" + q7.codePointProduct(aegean42))
 
   println(
-    "\nhello:" + q8.codePointProduct("Hello") +
-      ", empty:" + q8.codePointProduct("") +
-      ", aegean 42:" + q8.codePointProduct(aegean42))
+    "\nhello:" + q89.codePointProduct("Hello") +
+      ", empty:" + q89.codePointProduct("") +
+      ", aegean 42:" + q89.codePointProduct(aegean42))
 
-  
+  assert(q10.isEven(2))
+  assert(q10.isOdd(1))
+  assert(q10.isOdd(-3))
+  assert(q10.isEven(-62))
+
+  println("2 pow 2:" + q10.pow(2, 2) + ", Math.pow:" + Math.pow(2, 2))
+  println("2 pow -1:" + q10.pow(2, -1) + ", Math.pow:" + Math.pow(2, -1))
+  println("2 pow 0:" + q10.pow(2, 0) + ", Math.pow:" + Math.pow(2, 0))
+  println("3 pow 3:" + q10.pow(3, 3) + ", Math.pow:" + Math.pow(3, 3))
+  println("2 pow 4:" + q10.pow(2, 4) + ", Math.pow:" + Math.pow(2, 4))
+  println("2 pow 4:" + q10.pow(2, 32) + ", Math.pow:" + Math.pow(2, 32))
+
 }
