@@ -30,37 +30,44 @@ object Section3 extends App {
     loop(0, a)
   }
 
-  val a = Array[Int](1, 2, 3)
-  //printA(a)
-  // println(1 > 2)
-  val b = ArrayBuffer((for (i <- 0 to 3) yield i): _*)
-  b += (1, 2, 3, 4, 5, 6, 7) //+ (A*)
-  //  printA(b)
+  object thinking {
+    val a = Array[Int](1, 2, 3)
+    //printA(a)
+    // println(1 > 2)
+    val b = ArrayBuffer((for (i <- 0 to 3) yield i): _*)
+    b += (1, 2, 3, 4, 5, 6, 7) //+ (A*)
+    //  printA(b)
 
-  b ++= Array(23, 67, 89)
+    b ++= Array(23, 67, 89)
 
-  // printA(b)
-  // println("\n" + a.mkString("< ", " ", " >"))
-  // println(b.max)
+    // printA(b)
+    // println("\n" + a.mkString("< ", " ", " >"))
+    // println(b.max)
 
+    class Triangle(val name: String) {
+      override def toString = this.name
+    }
 
-  class Triangle(val name: String) {
-    override def toString = this.name
+    val l = Array(new Triangle("aaa"), new Triangle("bbb"), new Triangle("ccc"))
+    val ret = l.reduceLeft((a, b) => b)
+    // println(ret)
+
+    val matrix0: Array[Array[Int]] = Array.ofDim[Int](3, 3) //col,row
+    // for (x <- matrix0) println(x(0))
+    val pojoArray: Array[Int] = Array.ofDim[Int](3)
+    matrix0(0)(0) = 1
+    pojoArray(0) = 1
+
+    val dynMatrix = new Array[Array[Int]](3) //3 col
+    // println("---")
+    for (x <- 0 until dynMatrix.length) dynMatrix(x) = new Array[Int](3)
+    for (x <- 0 until 3; y <- 0 until 3) matrix0(x)(y) = x + y
+    printArray(matrix0)
+
+    val tr = ArrayBuffer(1, 2, 3, 45)
+    tr.trimEnd(2)
+    printArray(tr)
   }
-
-  val l = Array(new Triangle("aaa"), new Triangle("bbb"), new Triangle("ccc"))
-  val ret = l.reduceLeft((a, b) => b)
-  // println(ret)
-
-  val matrix0: Array[Array[Int]] = Array.ofDim[Int](3, 3) //col,row
-  // for (x <- matrix0) println(x(0))
-  val pojoArray: Array[Int] = Array.ofDim[Int](3)
-  matrix0(0)(0) = 1
-  pojoArray(0) = 1
-
-  val dynMatrix = new Array[Array[Int]](3) //3 col
-  // println("---")
-  for (x <- 0 until dynMatrix.length) dynMatrix(x) = new Array[Int](3)
 
 
   object q1 {
@@ -98,8 +105,98 @@ object Section3 extends App {
       } yield a(k)
   }
 
-  for (x <- 0 until 3; y <- 0 until 3) matrix0(x)(y) = x + y
-  printArray(matrix0)
+
+  object q4 {
+
+    def getPosAndNeg(a: Seq[Int]): Seq[Int] = {
+      val ret = new Array[Int](a.length)
+      val neg = new Array[Int](a.length)
+
+      var retPos = 0
+      var negPos = 0
+
+      for (v <- a) {
+        if (v >= 0) {
+          ret(retPos) = v
+          retPos += 1
+        } else {
+          neg(negPos) = v
+          negPos += 1
+        }
+      }
+
+      for (i <- 0 until negPos) {
+        ret(retPos) = neg(i)
+        retPos += 1
+      }
+
+      ret
+
+    }
+
+  }
+
+  object q5 {
+    def avg(a: Array[Double]): Double = a.sum / a.count(_ => true)
+
+    //def avg[T](a: Array[T])(implicit fr: Integral[T]): T = fr.quot(a.sum, a.count(_ => true).asInstanceOf[T])
+  }
+
+
+  object q6 {
+    def sortAndRevers[T](a: Seq[T])(implicit ev: Ordering[T]) = a.sorted.reverse
+  }
+
+  object q7 {
+    def printUnique[Any](a: Seq[Any]): Unit = {
+      val ad = a.distinct
+      for (v <- ad) print(v + " ")
+    }
+  }
+
+  object q8 {
+
+    import scala.collection.mutable.Buffer
+
+    //Scala for Impatient $3.4
+    def delNegFromHorstmann[T](a: Buffer[T])(implicit ev: Numeric[T]): Buffer[T] = {
+      var first = true
+      val zero = ev.zero
+
+      val posIndexes = for (i <- 0 until a.length if (first) || (ev.gteq(a(i), zero))) yield {
+        if (ev.lt(a(i), zero)) first = false
+        i
+      }
+
+      for (k <- 0 until posIndexes.length) a(k) = a(posIndexes(k))
+      a.trimEnd(a.length - posIndexes.length)
+
+      a
+
+    }
+
+    def delNegIm[T](a: Buffer[T])(implicit ev: Numeric[T]): Buffer[T] = { //immutable
+      var first = true
+      val zero = ev.zero
+      val ret = for (v <- a if (first) || (ev.gteq(v, zero))) yield {
+        if (ev.lt(v, zero)) first = false
+        v
+      }
+      ret
+    }
+
+    def delNegM[T](a: Buffer[T])(implicit ev: Numeric[T]): Buffer[T] = { //mutable
+      var first = true
+      val zero = ev.zero
+      for (i <- 0 until a.length if (first) || (ev.lt(a(i), zero))) {
+        if (ev.lt(a(i), zero)) first = false
+        a.remove(i)
+      }
+      a
+    }
+  }
+
+
   println("\n---q1")
   printArray(q1.arrayUpToN(5))
   println("\n---q2")
@@ -116,4 +213,59 @@ object Section3 extends App {
   printArray(q3.swapPos(q3TestData01))
   val q3TestData02 = Array(1, 2, 3, 4)
   printArray(q3.swapPos(q3TestData02))
+  println("\n---q4")
+  val q4TestData01 = Array(-1, 2, -3, 4, 5)
+  printArray(q4.getPosAndNeg(q4TestData01)) //2, 4, 5, -1, -3
+  val q4TestData02 = Array(0, 1, 2, 3, 4)
+  printArray(q4.getPosAndNeg(q4TestData02)) //0,1,2,3,4
+
+  println("\n---q5")
+  val q5TestData01 = Array(-1d, 2, -3.3, 4, 5)
+  println(q5.avg(q5TestData01))
+  // :-(
+  //  val q5TestData02 = Array(-1, 2, -3, 4, 5)
+  //  println(q5.avg(q5TestData02))
+  //  val q5TestData03 = Array(-1L, 2, -3, 4, 5)
+  //  println(q5.avg(q5TestData03))
+  println("\n---q6")
+  val q6td01 = Array(-1, 2, -3, 4, 5)
+  printArray(q6.sortAndRevers(q6td01))
+  val q6td02 = Array(1d, 3, 7, 4, 5)
+  printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
+  val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
+  printArray(q6.sortAndRevers(q6td03))
+
+  println("\n---q7")
+  val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)
+  q7.printUnique(q7td01)
+  println()
+  val q7td02 = Array(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  q7.printUnique(q7td02)
+
+
+  println("\n---q8")
+  //println(0d.asInstanceOf[Int])
+
+  val q8td01 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+  var start = System.nanoTime()
+  printArray(q8.delNegFromHorstmann(q8td01)) //-1, 1, 2, 4, 5, 5
+  println(" time:" + (System.nanoTime() - start))
+
+
+  val q8td02 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegFromHorstmann(q8td02)) //-1, 2, 1, 4, 5, 5
+  println(" time:" + (System.nanoTime() - start))
+
+  val q8td03 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegIm(q8td03)) //-1, 1, 2, 4, 5, 5
+  println(" time:" + (System.nanoTime() - start))
+
+  val q8td04 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegIm(q8td04)) //-1, 2, 1, 4, 5, 5
+  println(" time:" + (System.nanoTime() - start))
+
+
 }
