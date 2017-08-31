@@ -61,9 +61,9 @@ object Section21 extends App {
 
       println("----------l216-----------")
 
-     // def smaller[T](a: T, b: T)(implicit conv: T => Ordered[T]) = if (a < b) a else b
+      def smaller[T](a: T, b: T)(implicit conv: T => Ordered[T]) = if (a < b) a else b
 
-      def smaller[T<: Ordered[T]](a: T, b: T) = if (a < b) a else b
+     // def smaller[T<: Ordered[T]](a: T, b: T) = if (a < b) a else b
 
       printRet(smaller(1, 2), 1)
 

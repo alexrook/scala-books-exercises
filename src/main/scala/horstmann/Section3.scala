@@ -1,5 +1,6 @@
 package horstmann
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -7,15 +8,13 @@ object Section3 extends App {
 
   def printArray[T](array: Traversable[T]): Unit = if (array.nonEmpty) {
     val x0 = array.head
-
-    if (x0.isInstanceOf[Array[T]]) {
+    if (x0.getClass.isArray) {
       for (a <- array) printArray(a.asInstanceOf[Array[T]])
       println
     } else {
       println
       for (v <- array) print(v + " ")
     }
-
   } else {
     println("empty array")
   }
@@ -137,9 +136,9 @@ object Section3 extends App {
   }
 
   object q5 {
-    //    def avg(a: Array[Double]): Double = a.sum / a.count(_ => true)
+    //   def avg(a: Array[Double]): Double = a.sum / a.count(_ => true)
 
-    def avg[T:Numeric](a: Array[T])(implicit ev: T => Double): Double = if (a.nonEmpty) {
+    def avg[T](a: Array[T])(implicit ev: T => Double): Double = if (a.nonEmpty) {
       var count: Int = 0
       var sum: Double = 0
       for (v <- a) {
@@ -200,14 +199,36 @@ object Section3 extends App {
     def delNegM[T](a: Buffer[T])(implicit ev: Numeric[T]): Buffer[T] = { //mutable
       var first = true
       val zero = ev.zero
-      for (i <- 0 until a.length if (first) || (ev.lt(a(i), zero))) {
+      val neg = for (i <- 0 until a.length if (first) || (ev.lt(a(i), zero))) yield {
         if (ev.lt(a(i), zero)) first = false
-        a.remove(i)
+        i
       }
+
+      for (k <- (0 until neg.length).reverse) a.remove(k)
       a
     }
   }
 
+  object q9 {
+    def timeZoneIDs(prefix: String): Seq[String] = {
+      import java.util.TimeZone._
+      val ids = getAvailableIDs
+      val ret = for (id <- ids if id.startsWith(prefix)) yield id.drop(prefix.length)
+      ret.sorted
+    }
+  }
+
+  object q10 {
+    def systemFlavors(): mutable.Buffer[String] = {
+      import java.awt.datatransfer._
+      import scala.collection.JavaConverters._
+      val flavors: SystemFlavorMap = SystemFlavorMap.getDefaultFlavorMap.asInstanceOf[SystemFlavorMap]
+      val ret = flavors.getNativesForFlavor(DataFlavor.imageFlavor)
+      ret.asScala
+    }
+  }
+
+  //  thinking
 
   println("\n---q1")
   printArray(q1.arrayUpToN(5))
@@ -236,47 +257,54 @@ object Section3 extends App {
   println(q5.avg(q5TestData01))
   val q5TestData02 = Array(-1, 2, -3, 4, 5)
   println(q5.avg(q5TestData02))
-    val q5TestData03 = Array(-1L, 2, -3, 4, 5)
-    println(q5.avg(q5TestData03))
-    println("\n---q6")
-    val q6td01 = Array(-1, 2, -3, 4, 5)
-    printArray(q6.sortAndRevers(q6td01))
-    val q6td02 = Array(1d, 3, 7, 4, 5)
-    printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
-    val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
-    printArray(q6.sortAndRevers(q6td03))
+  val q5TestData03 = Array(-1L, 2, -3, 4, 5)
+  println(q5.avg(q5TestData03))
+  val q5TestData04 = Array("aaa", "bbb", "ccc")
+  // println(q5.avg(q5TestData04))
+  println("\n---q6")
+  val q6td01 = Array(-1, 2, -3, 4, 5)
+  printArray(q6.sortAndRevers(q6td01))
+  val q6td02 = Array(1d, 3, 7, 4, 5)
+  printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
+  val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
+  printArray(q6.sortAndRevers(q6td03))
 
-    println("\n---q7")
-    val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)
-    q7.printUnique(q7td01)
-    println()
-    val q7td02 = Array(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-    q7.printUnique(q7td02)
-
-
-    println("\n---q8")
-    //println(0d.asInstanceOf[Int])
-
-    val q8td01 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
-    var start = System.nanoTime()
-    printArray(q8.delNegFromHorstmann(q8td01)) //-1, 1, 2, 4, 5, 5
-    println(" time:" + (System.nanoTime() - start))
+  println("\n---q7")
+  val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)
+  q7.printUnique(q7td01)
+  println()
+  val q7td02 = Array(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  q7.printUnique(q7td02)
 
 
-    val q8td02 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-    start = System.nanoTime()
-    printArray(q8.delNegFromHorstmann(q8td02)) //-1, 2, 1, 4, 5, 5
-    println(" time:" + (System.nanoTime() - start))
+  println("\n---q8")
+  //println(0d.asInstanceOf[Int])
 
-    val q8td03 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
-    start = System.nanoTime()
-    printArray(q8.delNegIm(q8td03)) //-1, 1, 2, 4, 5, 5
-    println(" time:" + (System.nanoTime() - start))
+  val q8td01 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+  var start = System.nanoTime()
+  printArray(q8.delNegFromHorstmann(q8td01)) //-1, 1, 2, 4, 5, 5
+  println("delNegFromHorstmann time:" + (System.nanoTime() - start))
 
-    val q8td04 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-    start = System.nanoTime()
-    printArray(q8.delNegIm(q8td04)) //-1, 2, 1, 4, 5, 5
-    println(" time:" + (System.nanoTime() - start))
 
+  val q8td02 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegFromHorstmann(q8td02)) //-1, 2, 1, 4, 5, 5
+  println(" time:" + (System.nanoTime() - start))
+
+  val q8td03 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegIm(q8td03)) //-1, 1, 2, 4, 5, 5
+  println("delNegIm time:" + (System.nanoTime() - start))
+
+  val q8td04 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+  start = System.nanoTime()
+  printArray(q8.delNegM(q8td04)) //-1, 2, 1, 4, 5, 5
+  println("delNegM time:" + (System.nanoTime() - start))
+
+  println("\n---q9")
+  printArray(q9.timeZoneIDs("America/"))
+
+  println("\n---q10")
+  printArray(q10.systemFlavors())
 
 }
