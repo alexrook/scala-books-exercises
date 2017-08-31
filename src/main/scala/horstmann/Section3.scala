@@ -137,9 +137,21 @@ object Section3 extends App {
   }
 
   object q5 {
-    def avg(a: Array[Double]): Double = a.sum / a.count(_ => true)
+    //    def avg(a: Array[Double]): Double = a.sum / a.count(_ => true)
 
-    //def avg[T](a: Array[T])(implicit fr: Integral[T]): T = fr.quot(a.sum, a.count(_ => true).asInstanceOf[T])
+    def avg[T:Numeric](a: Array[T])(implicit ev: T => Double): Double = if (a.nonEmpty) {
+      var count: Int = 0
+      var sum: Double = 0
+      for (v <- a) {
+        count += 1
+        sum += v
+      }
+
+      sum / count
+    } else {
+      0
+    }
+
   }
 
 
@@ -222,50 +234,49 @@ object Section3 extends App {
   println("\n---q5")
   val q5TestData01 = Array(-1d, 2, -3.3, 4, 5)
   println(q5.avg(q5TestData01))
-  // :-(
-  //  val q5TestData02 = Array(-1, 2, -3, 4, 5)
-  //  println(q5.avg(q5TestData02))
-  //  val q5TestData03 = Array(-1L, 2, -3, 4, 5)
-  //  println(q5.avg(q5TestData03))
-  println("\n---q6")
-  val q6td01 = Array(-1, 2, -3, 4, 5)
-  printArray(q6.sortAndRevers(q6td01))
-  val q6td02 = Array(1d, 3, 7, 4, 5)
-  printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
-  val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
-  printArray(q6.sortAndRevers(q6td03))
+  val q5TestData02 = Array(-1, 2, -3, 4, 5)
+  println(q5.avg(q5TestData02))
+    val q5TestData03 = Array(-1L, 2, -3, 4, 5)
+    println(q5.avg(q5TestData03))
+    println("\n---q6")
+    val q6td01 = Array(-1, 2, -3, 4, 5)
+    printArray(q6.sortAndRevers(q6td01))
+    val q6td02 = Array(1d, 3, 7, 4, 5)
+    printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
+    val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
+    printArray(q6.sortAndRevers(q6td03))
 
-  println("\n---q7")
-  val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)
-  q7.printUnique(q7td01)
-  println()
-  val q7td02 = Array(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-  q7.printUnique(q7td02)
-
-
-  println("\n---q8")
-  //println(0d.asInstanceOf[Int])
-
-  val q8td01 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
-  var start = System.nanoTime()
-  printArray(q8.delNegFromHorstmann(q8td01)) //-1, 1, 2, 4, 5, 5
-  println(" time:" + (System.nanoTime() - start))
+    println("\n---q7")
+    val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)
+    q7.printUnique(q7td01)
+    println()
+    val q7td02 = Array(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+    q7.printUnique(q7td02)
 
 
-  val q8td02 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-  start = System.nanoTime()
-  printArray(q8.delNegFromHorstmann(q8td02)) //-1, 2, 1, 4, 5, 5
-  println(" time:" + (System.nanoTime() - start))
+    println("\n---q8")
+    //println(0d.asInstanceOf[Int])
 
-  val q8td03 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
-  start = System.nanoTime()
-  printArray(q8.delNegIm(q8td03)) //-1, 1, 2, 4, 5, 5
-  println(" time:" + (System.nanoTime() - start))
+    val q8td01 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+    var start = System.nanoTime()
+    printArray(q8.delNegFromHorstmann(q8td01)) //-1, 1, 2, 4, 5, 5
+    println(" time:" + (System.nanoTime() - start))
 
-  val q8td04 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
-  start = System.nanoTime()
-  printArray(q8.delNegIm(q8td04)) //-1, 2, 1, 4, 5, 5
-  println(" time:" + (System.nanoTime() - start))
+
+    val q8td02 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+    start = System.nanoTime()
+    printArray(q8.delNegFromHorstmann(q8td02)) //-1, 2, 1, 4, 5, 5
+    println(" time:" + (System.nanoTime() - start))
+
+    val q8td03 = ArrayBuffer(-1, -1, 1, 2, -3, 4, 5, 5)
+    start = System.nanoTime()
+    printArray(q8.delNegIm(q8td03)) //-1, 1, 2, 4, 5, 5
+    println(" time:" + (System.nanoTime() - start))
+
+    val q8td04 = ArrayBuffer(-1, 1, 2, -3.1, -3.1, 1, 4, 5, 5)
+    start = System.nanoTime()
+    printArray(q8.delNegIm(q8td04)) //-1, 2, 1, 4, 5, 5
+    println(" time:" + (System.nanoTime() - start))
 
 
 }
