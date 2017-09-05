@@ -1,3 +1,4 @@
+package atomic
 import java.util
 
 import scala.runtime.RichInt

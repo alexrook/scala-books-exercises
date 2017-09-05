@@ -1,3 +1,4 @@
+package atomic
 /**
   * Created by moroz on 24.07.17.
   */

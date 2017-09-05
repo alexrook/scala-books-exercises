@@ -1,3 +1,4 @@
+package horstmann
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
 import java.io.File

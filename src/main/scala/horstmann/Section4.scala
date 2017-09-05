@@ -81,7 +81,7 @@ object Section4 extends App {
     println(same_as_discount.mkString(" , "))
   }
 
-  object Question2 {
+  object  Question2 {
 
     import java.io.{File, Writer, FileWriter}
 
