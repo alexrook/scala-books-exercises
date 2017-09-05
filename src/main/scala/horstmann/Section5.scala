@@ -188,13 +188,14 @@ object Section5 extends App {
 
       //  mari.contacts+=fred //compile error type mismatch
 
-      class AllInclusiveNetwork {outer =>
+      class AllInclusiveNetwork {
+        outer =>
 
         import scala.collection.mutable.ArrayBuffer
 
         class Member(val name: String) {
           val contacts = new ArrayBuffer[AllInclusiveNetwork#Member] //type projection Section18
-          override def toString: String =AllInclusiveNetwork.this+":"+ this.getClass + ":" + name +":"+ outer
+          override def toString: String = AllInclusiveNetwork.this + ":" + this.getClass + ":" + name + ":" + outer
         }
 
         val members = new ArrayBuffer[Member]
@@ -231,6 +232,96 @@ object Section5 extends App {
   // l5.l52
   //l5.l55
   // l5.l56
-  l5.l58
+  //  l5.l58
 
+  object q1 {
+
+    class Counter {
+
+      private[this] var _current: Int = _
+
+      def current = _current
+
+      def inc() = if (_current == Int.MaxValue) _current = 1 else _current += 1
+
+    }
+
+    val counter = new Counter
+    counter.inc()
+    //for (_ <- 0 to Int.MaxValue) counter.inc()
+    println(counter.current)
+
+  }
+
+  object q2 {
+
+    class BankAccount(initialBalance: Double) {
+      private[this] var _balance = initialBalance
+
+      def balance = _balance
+
+      def deposit(sum: Double) = _balance += sum
+
+      def withdraw(sum: Double) = if (sum <= _balance) _balance -= sum
+      else throw new IllegalArgumentException("un sufficient funds")
+
+    }
+
+    val account = new BankAccount(0)
+    account.deposit(12)
+    println(account.balance)
+    account.withdraw(12)
+    assert(account.balance == 0)
+    println(account.balance)
+
+  }
+
+  object q3 {
+
+    class Time(_hours: Int, _minutes: Int) {
+      val hours = if (_hours == 24) {
+        if (_minutes == 60) {
+          1
+        } else 0
+
+      } else if (_hours >= 0 && _hours < 24) {
+        if (_minutes == 60) {
+          _hours + 1
+        } else _hours
+      }
+      else throw new IllegalArgumentException("hours must be >=0 and <=24")
+
+      val minutes = if (_minutes == 60) 0
+      else if (_minutes >= 0 && _minutes < 60) _minutes
+      else throw new IllegalArgumentException("minutes must be >=0 and <=60")
+
+      def before(other: Time) = if (other.hours > this.hours) true
+      else if (other.hours == this.hours) {
+        if (other.minutes > this.minutes) true else false
+      } else false
+
+      override def toString: String = hours + ":" + minutes
+    }
+
+    val t1 = new Time(12, 11)
+    val t2 = new Time(14, 45)
+    assert(t1.before(t2))
+    assert(t2.before(t1) == false)
+    println(t2)
+
+    val t3 = new Time(24, 45)
+    println(t3)
+
+    val t4 = new Time(24, 60)
+    println(t4)//
+
+    val t5 = new Time(24, 0)
+    println(t5)
+
+
+  }
+
+  //  q1
+  //q2
+  q3
 }
