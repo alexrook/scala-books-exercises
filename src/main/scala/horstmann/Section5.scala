@@ -291,7 +291,7 @@ object Section5 extends App {
         if (other.minutes > this.minutes) true else false
       } else false
 
-      override def toString: String = f"$hours%02d:$minutes%02d"
+      override def toString: String = f"$hours%02d :$minutes%02d"
     }
 
     class TimeQ3(_hours: Int, _minutes: Int)
@@ -400,10 +400,122 @@ object Section5 extends App {
 
   }
 
+  object q7 {
 
-  q1
-  q2
-  q3_4
-  q5
-  q6
+    class Person(val fullName: String) {
+      private val split = fullName.split(" ")
+      val firstName = split(0)
+      val lastName = if (split.length > 1) split(1) else "unknown"
+
+      override def toString: String = s"My name $firstName, and last name $lastName"
+    }
+
+    println(new Person("Ann Golon") + "; " + new Person("Butch Marcus") + "; " + new Person("007"))
+
+  }
+
+  object q8 {
+
+    class Car(val manufacturer: String, val model: String, val year: Int, var regNum: String) {
+
+      def this(manufacturer: String, model: String) {
+        this(manufacturer, model, -1, "")
+      }
+
+      def this(manufacturer: String, model: String, year: Int) {
+        this(manufacturer, model, year, "")
+      }
+
+      def this(manufacturer: String, model: String, regNum: String) {
+        this(manufacturer, model, -1, regNum)
+      }
+
+      override def toString: String = s"$manufacturer:$model, $year, $regNum"
+    }
+
+    println("Scala Section5.q8.Car's")
+    val blackMoon = new Car("BigFactory", "BlackMoon", 1977, "#1")
+    println(blackMoon)
+    blackMoon.regNum = "1"
+    println(blackMoon)
+
+    val cabby = new Car("GarageInc", "Yellow Cab")
+    println(cabby)
+    cabby.regNum = "#77799"
+    println(cabby)
+
+  }
+
+  object q9 {
+
+    import horstmann.JSection5_q8.Car
+
+    println("Scala JSection8_q8.Cars")
+    val blackMoon = new Car("BigFactory", "BlackMoon", 1977, "#1")
+    println(blackMoon)
+    blackMoon.setRegNum("1")
+    println(blackMoon)
+
+    val cabby = new Car("GarageInc", "Yellow Cab")
+    println(cabby)
+    cabby.setRegNum("#77799")
+    println(cabby)
+
+  }
+
+  object q10 {
+
+    trait Emp {
+      def name: String
+
+      def salary: Double
+
+      override def toString: String = s"$name with salary:$salary"
+    }
+
+    class Employee(val name: String, val salary: Double) extends Emp {
+      def this() {
+        this("John Q. Public", 0d)
+      }
+    }
+
+    class EmployeeRev() extends Emp {
+
+      var _name = "John Q. Public"
+      var _salary = 0d
+
+      def name = _name
+
+      def salary = _salary
+
+      def this(name: String, salary: Double) {
+        this()
+        this._name = name
+        this._salary = salary
+      }
+    }
+
+    def testEmp(conv0:()=>Emp,conv1:(String,Double)=>Emp){
+
+      val john:Emp=conv0()
+      println(john)
+
+      val  king=conv1("King Kong",Double.MaxValue-1)
+      println(king)
+    }
+
+    testEmp(()=>new Employee(),(n,s)=>new Employee(n,s))
+    testEmp(()=>new EmployeeRev(),(n,s)=>new EmployeeRev(n,s))
+
+  }
+
+  //  q1
+  //  q2
+  //  q3_4
+  //  q5
+  //  q6
+  // q7
+  q8
+  q9
+  q10
 }
