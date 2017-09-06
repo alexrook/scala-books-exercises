@@ -1,5 +1,6 @@
 package horstmann
 
+
 class PersonWithDefs(val name: String = "", var age: Int = 0)
 
 object Section5 extends App {
@@ -63,7 +64,7 @@ object Section5 extends App {
         p2.age = 1
         println(p.age)
       } catch {
-        case _ => println("expected exception")
+        case _: IllegalArgumentException => println("expected exception")
       }
 
 
@@ -215,14 +216,14 @@ object Section5 extends App {
       println("mike:" + mike)
       val alex = aGroup1.join("alex")
       println(mike.getClass.getName)
-      val natali: aGroup2.Member = aGroup2.join("natali")
-      println("natali:" + natali)
-      println(natali.getClass.getName)
-      println(natali.getClass == mike.getClass)
+      val lucia: aGroup2.Member = aGroup2.join("natali")
+      println("lucia:" + lucia)
+      println(lucia.getClass.getName)
+      println(lucia.getClass == mike.getClass)
 
       mike.contacts += alex
       alex.contacts += mike
-      natali.contacts += mike //ok
+      lucia.contacts += mike //ok
 
     }
 
@@ -276,9 +277,25 @@ object Section5 extends App {
 
   }
 
-  object q3 {
+  object q3_4 {
 
-    class Time(_hours: Int, _minutes: Int) {
+    //A Matter of Time
+
+    abstract class Time(_hours: Int, _minutes: Int) {
+      def hours: Int
+
+      def minutes: Int
+
+      def before(other: Time) = if (other.hours > this.hours) true
+      else if (other.hours == this.hours) {
+        if (other.minutes > this.minutes) true else false
+      } else false
+
+      override def toString: String = f"$hours%02d:$minutes%02d"
+    }
+
+    class TimeQ3(_hours: Int, _minutes: Int)
+      extends Time(_hours: Int, _minutes: Int) {
       val hours = if (_hours == 24) {
         if (_minutes == 60) {
           1
@@ -295,33 +312,98 @@ object Section5 extends App {
       else if (_minutes >= 0 && _minutes < 60) _minutes
       else throw new IllegalArgumentException("minutes must be >=0 and <=60")
 
-      def before(other: Time) = if (other.hours > this.hours) true
-      else if (other.hours == this.hours) {
-        if (other.minutes > this.minutes) true else false
-      } else false
-
-      override def toString: String = hours + ":" + minutes
     }
 
-    val t1 = new Time(12, 11)
-    val t2 = new Time(14, 45)
-    assert(t1.before(t2))
-    assert(t2.before(t1) == false)
-    println(t2)
+    class TimeQ4(h: Int, m: Int)
+      extends Time(h: Int, m: Int) {
 
-    val t3 = new Time(24, 45)
-    println(t3)
+      val MINS_IN_DAY = 24 * 60
 
-    val t4 = new Time(24, 60)
-    println(t4)//
+      private def check(h: Int, m: Int) = {
+        if (m < 0 || m > 60) throw new IllegalArgumentException("minutes must be >=0 and <=60")
+        if (h < 0 || h > 24) throw new IllegalArgumentException("hours must be >=0 and <=24")
+      }
 
-    val t5 = new Time(24, 0)
-    println(t5)
+      val _minutes: Int = {
 
+        check(h, m)
+
+        val maybe = h * 60 + m
+
+        if (maybe == MINS_IN_DAY) {
+          0
+        } else if (maybe > MINS_IN_DAY) {
+          maybe - MINS_IN_DAY
+        } else {
+          maybe
+        }
+
+      }
+
+      override def hours: Int = _minutes / 60
+
+      override def minutes: Int = _minutes - (hours * 60)
+
+    }
+
+    def timeTest(conv: (Int, Int) => Time): Unit = {
+
+      val t1: Time = conv(12, 11)
+      val t2 = conv(14, 45)
+      println(s"'12:11'=$t1, '14:45'=$t2")
+      assert(t1.before(t2))
+      assert(t2.before(t1) == false)
+
+
+      val t3 = conv(24, 45)
+      val t4 = conv(24, 60)
+      val t5 = conv(24, 0)
+      println(s"'24:45'=$t3 '24:60'=$t4 '24:00'=$t5")
+
+
+    }
+
+    println("\ntest Time q3")
+    timeTest((h, m) => new TimeQ3(h, m))
+    println("\ntest Time q4")
+    timeTest((h, m) => new TimeQ4(h, m))
 
   }
 
-  //  q1
-  //q2
-  q3
+  object q5 {
+
+    import scala.beans.BeanProperty
+
+    class Student(@BeanProperty var id: Long, @BeanProperty var name: String) {
+      override def toString: String = s"student($id):$name"
+    }
+
+    val mari = new Student(1, "mari")
+    val fred = new Student(1, "fred")
+
+    mari.setId(2) //JavaBeans
+    fred.id = 3 //scala id_=(Long) , id_$eq for Java
+    println(s"\n $mari, $fred")
+
+  }
+
+  object q6 {
+
+    class Person(val name: String, _age: Int) {
+      val age = if (_age >= 0) _age else 0
+
+      override def toString: String = s"I'm $name, and I'm $age years old"
+
+    }
+
+    println(new Person("Ann", -12) + ", " + new Person("Butch", 23))
+
+  }
+
+
+  q1
+  q2
+  q3_4
+  q5
+  q6
 }
