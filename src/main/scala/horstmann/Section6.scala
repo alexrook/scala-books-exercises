@@ -1,62 +1,112 @@
 package horstmann
 
 
-object MyColors extends Enumeration {
+object Section6 extends App {
 
-  val Red, Blue, Green = Value
+  object l6 {
 
-}
+    object l61 {
 
-object Step {
-  def step01(): Unit = {
+      class Account {
+        val id = Account.genId()
+        private[this] var _deposit = 0d
 
-    import horstmann.section6._
+        def deposit(sum: Double) = _deposit += sum
 
-    println("hello section 6 !")
+        def deposit = _deposit
 
-    val a: Account = new Account
+        def +(sum: Double): Account = {
+          deposit(sum);
+          this
+        }
 
-    a.deposit(12.7)
+      }
 
-    println("a.id=" + a.id + ", deposit=" + a.deposit)
+      object Account {
 
-    val b = Account()
+        private var id = 0;
 
-    val c = b + 17
+        def genId(): Int = {
+          id += 1;
+          id
+        }
 
-    println("b.id=" + b.id + ", deposit=" + b.deposit + ", java to string:" + b.toString)
-    println("c.id=" + c.id + ", deposit=" + c.deposit + ", java to string:" + c.toString)
-    assert(c == b)
-    //---------Account2
-
-    val a2 = Account2(136.34)
+        def apply(): Account = new Account
+      }
 
 
-    println("a2.id=" + a2.id + ", deposit=" + a2.deposit)
-    a2 + 67
-    println("a2.id=" + a2.id + ", deposit=" + a2.deposit)
+      println("hello section 6 !")
+      val a: Account = new Account
+      a.deposit(12.7)
+      println("a.id=" + a.id + ", deposit=" + a.deposit)
+      val b = Account()
+      val c = b + 17
+      println("b.id=" + b.id + ", deposit=" + b.deposit + ", java to string:" + b.toString)
+      println("c.id=" + c.id + ", deposit=" + c.deposit + ", java to string:" + c.toString)
+      assert(c == b)
 
-    //val b2=new Account2() -- error no public constructor
-
-    val i, k, j = 1
-    println("i=" + i + ", k=" + k + ", j=" + j)
-
-  }
-
-  def step02(): Unit = {
-    for (color <- MyColors.values) {
-      println(color + ":" + color.id)
     }
 
-    val color = MyColors(0)
-    println(color + ":" + color.id) //Red (id autonum)
+
+    object l62 {
+
+      class Account2 private(_id: Int, initialBalance: Double) {
+        val id = _id
+        private[this] var _deposit = initialBalance
+
+        def deposit(sum: Double) = _deposit += sum
+
+        def deposit = _deposit
+
+        def +(sum: Double): Account2 = {
+          deposit(sum);
+          this
+        }
+
+      }
+
+      object Account2 {
+        private var id = 0;
+
+        def genId(): Int = {
+          id += 1;
+          id
+        }
+
+        def apply(initialBalance: Double): Account2 = new Account2(genId(), initialBalance)
+      }
+
+      val a2 = Account2(136.34)
+
+      println("a2.id=" + a2.id + ", deposit=" + a2.deposit)
+      a2 + 67
+      println("a2.id=" + a2.id + ", deposit=" + a2.deposit)
+
+      val i, k, j = 1
+      println("i=" + i + ", k=" + k + ", j=" + j)
+
+    }
+
+    object l63 {
+
+      object MyColors extends Enumeration {
+        val Red, Blue, Green = Value
+      }
+
+      for (color <- MyColors.values) {
+        println(color + ":" + color.id)
+      }
+
+      val color = MyColors(0)
+      println(color + ":" + color.id) //Red (id autonum)
+    }
+
   }
-}
 
-object Exercises {
 
-  object st1_2 {
+  object q1_2 {
 
+    //q1
     object Conversion {
 
       //Британская и американская (статутная) миля
@@ -70,6 +120,8 @@ object Exercises {
       def gallonsToLiters(gallons: Int) = 4.5461 * gallons
     }
 
+    //q2
+
     abstract class UnitConversion {
       val conversionConst: Double
 
@@ -78,21 +130,26 @@ object Exercises {
       }
     }
 
-    class MilesToKilometers extends UnitConversion {
+    object MilesToKilometers extends UnitConversion {
       final val conversionConst = 1609.34
     }
 
-    class GallonsToLiters extends UnitConversion {
+    object GallonsToLiters extends UnitConversion {
       final val conversionConst = 4.5461
     }
 
-    class InchesToCentimeters extends UnitConversion {
+    object InchesToCentimeters extends UnitConversion {
       final val conversionConst = 2.54
     }
 
+
+    assert(Conversion.milesToKilometers(3) == MilesToKilometers.convert(3))
+    assert(Conversion.gallonsToLiters(3) == GallonsToLiters.convert(3))
+    assert(Conversion.inchesToCentimeters(3) == InchesToCentimeters.convert(3))
+
   }
 
-  object st3_4 {
+  object q3_4 {
 
 
     class Origin extends java.awt.Point {
@@ -105,68 +162,77 @@ object Exercises {
       def apply(x: Int, y: Int): Point = new Point(x, y)
     }
 
+    val point = Point(1, 2)
+    println(point.x)
+    println(point.y)
+    assert(point.x == 1)
+    assert(point.y == 2)
 
   }
 
-  object st6_7 {
+  object q5 {
 
-    object Must extends Enumeration {
-      val Trefa = Value("\u2663")
-      val Bubna = Value("\u2662")
-      val Cherva = Value("\u2661")
-      val Pike = Value("\u2660")
-
-      class Card(val name: String, val must: Must.Value)
-
-      def isRed(card: Card) = {
-        card.must == Cherva || card.must == Bubna
+    def printReverse(args: Array[String]): Unit = {
+      println()
+      for (arg <- args.reverse) {
+        print(arg + " ")
       }
     }
+  }
+
+  object q6_7 {
+
+    object Suits extends Enumeration {
+      val Clubs = Value("\u2663")
+      val Tiles = Value("\u2662")
+      val Hearts = Value("\u2661")
+      val Pikes = Value("\u2660")
+
+      class Card(val name: String, val suit: Suits.Value)
+
+      def isRed(card: Card): Boolean = {
+        card.suit == Tiles || card.suit == Hearts
+      }
+
+      def isBlack(card: Card) = !isRed(card)
+    }
+
+    for (suit <- Suits.values) print(suit.toString + " ")
+
+    val card = new Suits.Card("King", Suits.Hearts)
+    assert(Suits.isRed(card))
 
   }
 
   object q8 {
-    //TODO RGB Cube Enum
+
+    object RGBCube extends Enumeration {
+
+      val Black = Value(0x000000)
+      val Blue = Value(0x0000ff)
+      val Green = Value(0x00ff00)
+      val Cyan = Value(0x00ffff)
+      val Red = Value(0xff0000)
+      val Magenta = Value(0xff00ff)
+      val Yellow = Value(0xffff00)
+      val White = Value(0xffffff)
+
+    }
+
+    for (color <- RGBCube.values) {
+      println(color.id + ":" + color.toString)
+    }
+
   }
 
 
+  //  l6.l61
+  //  l6.l62
+  //  l6.l63
+
+  q1_2
+  q3_4
+  q5.printReverse(args)
+  q6_7
+  q8
 }
-
-object q5 extends App {
-  println(args.reverse.mkString(" "))
-
-
-}
-
-
-object Main extends App {
-
-  // import Step._
-  //step01()
-  //step02()
-
-  import Exercises.st1_2._
-
-  assert(Conversion.milesToKilometers(3) == (new MilesToKilometers).convert(3))
-  assert(Conversion.gallonsToLiters(3) == (new GallonsToLiters).convert(3))
-  assert(Conversion.inchesToCentimeters(3) == (new InchesToCentimeters).convert(3))
-
-  import Exercises.st3_4._
-
-  val point = Point(1, 2)
-  println(point.x)
-  println(point.y)
-  assert(point.x == 1)
-  assert(point.y == 2)
-
-  import Exercises.st6_7._
-
-  for (must <- Must.values) print(must.toString + " ")
-  val card = new Must.Card("king", Must.Cherva)
-  assert(Must.isRed(card))
-
-}
-
-
-
-
