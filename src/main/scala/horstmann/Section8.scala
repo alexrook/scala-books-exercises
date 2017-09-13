@@ -118,7 +118,7 @@ object Section8 extends App {
 
       import horstmann.JSection8._
 
-      val l = new L82JBase(1,2) {
+      val l = new L82JBase(1, 2) {
         def toStr: String = "local anonymous"
 
         def calc = getX + getY
@@ -128,7 +128,7 @@ object Section8 extends App {
         def toStr: String
         def calc: Int
       }): Unit = {
-        println(v.getClass.getName + ":" + v.toStr + ":"+v.calc)
+        println(v.getClass.getName + ":" + v.toStr + ":" + v.calc)
       }
 
       printStructL82(l)
@@ -136,13 +136,42 @@ object Section8 extends App {
 
     }
 
+  }
+
+  object q1 {
+
+    class BankAccount(initialBalance: Double) {
+      private var _balance = initialBalance
+
+      def deposit(amount: Double) = {
+        _balance += amount;
+        _balance
+      }
+
+      def balance = _balance
+
+      def withdraw(amount: Double) = if (amount <= _balance) {
+        _balance -= amount;
+        _balance
+      } else throw new IllegalArgumentException("unsufficiend funds")
+    }
+
+    class CheckingAccount(initialBalance: Double) extends BankAccount(initialBalance) {
+      override def withdraw(amount: Double): Double = super.withdraw(amount + 1)
+    }
+
+    val a1 = new CheckingAccount(23)
+    a1.withdraw(12)
+    assert(a1.balance == 10)
 
   }
 
 
   //  l8.l8x
   // l8.l85
-  l8.l87
+  //l8.l87
+
+  q1
 }
 
 
