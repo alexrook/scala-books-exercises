@@ -1,5 +1,6 @@
 package horstmann
 
+
 /**
   * Created by moroz on 17.05.17.
   */
@@ -141,7 +142,7 @@ object Section8 extends App {
   object q1 {
 
     class BankAccount(initialBalance: Double) {
-      private var _balance = initialBalance
+      protected var _balance = initialBalance
 
       def deposit(amount: Double) = {
         _balance += amount;
@@ -153,11 +154,14 @@ object Section8 extends App {
       def withdraw(amount: Double) = if (amount <= _balance) {
         _balance -= amount;
         _balance
-      } else throw new IllegalArgumentException("unsufficiend funds")
+      } else throw new IllegalArgumentException("insufficient funds")
+
     }
 
     class CheckingAccount(initialBalance: Double) extends BankAccount(initialBalance) {
-      override def withdraw(amount: Double): Double = super.withdraw(amount + 1)
+      val bankInterest = 1
+
+      override def withdraw(amount: Double): Double = super.withdraw(amount + bankInterest)
     }
 
     val a1 = new CheckingAccount(23)
@@ -166,12 +170,155 @@ object Section8 extends App {
 
   }
 
+  object q2 {
+
+    import q1._
+
+    class SavingAccount(initialBalance: Double) extends CheckingAccount(initialBalance) {
+
+      var freeWithDrawCount = 3
+
+      def earnMonthlyInterest(percent: Double): Unit = {
+        freeWithDrawCount = 3
+        val sum = (balance / 100) * percent
+        deposit(sum)
+      }
+
+      override def withdraw(amount: Double): Double = if (freeWithDrawCount > 0) {
+        _balance -= amount;
+
+        freeWithDrawCount -= 1
+
+        _balance
+      } else super.withdraw(amount)
+
+    }
+
+    val a1 = new SavingAccount(23)
+    a1.withdraw(1)
+    a1.withdraw(1)
+    a1.withdraw(1)
+    assert(a1.balance == 20)
+    a1.withdraw(1)
+    assert(a1.balance == 18)
+    a1.earnMonthlyInterest(1)
+    a1.withdraw(1)
+    assert(a1.balance == 17.18)
+
+  }
+
+  object q3 {
+
+    case class Point(val x: Double, val y: Double)
+
+    trait Figure {
+
+      def area: Double
+
+      def perimeter: Double
+
+      def center: Point
+
+      def rotate(corner: Double): Figure
+
+      def scale(factor: Double): Figure
+
+      def move(newCenter: Point): Figure
+
+      def transform(trans: Figure => Figure): Figure = trans(this)
+
+    }
+
+    type Vertex = Point
+
+    case class LineSegment(val a: Vertex, val b: Vertex) {
+      import LineSegment._
+      val length = vectorLength(a,b)
+    }
+
+    object LineSegment {
+      def vectorLength(a: Vertex, b: Vertex):Double =
+        Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
+    }
+
+    trait Polygon extends Figure {
+
+      def corners: Set[Vertex]
+
+      def segments: Set[LineSegment]
+
+    }
+
+    case class Curve(val a: Point, val b: Point,
+                     val center: Point, val radius: Double)
+
+    trait ClosedCurve extends Figure {
+      def segments: Set[Curve]
+    }
+
+    class Circle(override val center: Point, override val radius: Double)
+      extends Curve(Point(center.x + radius, center.y),
+        Point(center.x + radius, center.y)
+        , center, radius) with ClosedCurve {
+
+      override def segments: Set[Curve] = Set(this)
+
+      override def area: Double = Math.PI * radius * radius
+
+      override def perimeter: Double = 2 * Math.PI * radius
+
+      override def rotate(corner: Double): Figure = this
+
+      override def scale(factor: Double): Figure = new Circle(center, radius * factor)
+
+      override def move(newCenter: Point): Figure = new Circle(newCenter, radius)
+    }
+
+    trait Quadrilateral extends Polygon {
+      def a: Vertex
+
+      def b: Vertex
+
+      val c: Vertex
+
+      def d: Vertex
+
+      override def corners: Set[Vertex] = Set(a, b, c, d)
+
+      override def segments: Set[LineSegment] = Set(LineSegment(a, b),
+        LineSegment(a, d), LineSegment(b, c), LineSegment(d, c))
+
+    }
+
+    class Square(val a: Vertex, val d: Vertex /*diagonal corners*/)
+      extends Quadrilateral {
+
+      val side = LineSegment(a, b).length
+      val b: Vertex = ???
+      val c: Vertex = ???
+
+      override def area: Double = side * side
+
+      override def perimeter: Double = 4 * side
+
+      override def center: Point = ???
+
+      override def rotate(corner: Double): Figure = ???
+
+      override def scale(factor: Double): Figure = ???
+
+      override def move(newCenter: Point): Figure = ???
+    }
+
+
+  }
 
   //  l8.l8x
   // l8.l85
   //l8.l87
 
   q1
+  q2
 }
 
 
