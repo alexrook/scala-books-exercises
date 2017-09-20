@@ -209,7 +209,7 @@ object Section8 extends App {
 
   object q3 {
 
-    import horstmann.s8.v1._
+    import horstmann.s8.geom.v1._
 
     val point1 = Point(0, 3)
 

@@ -1,4 +1,4 @@
-package horstmann.s8.v1
+package horstmann.s8.geom.v1
 
 class Point(val x: Double, val y: Double) {
 
@@ -76,7 +76,7 @@ object LineSegment {
   def apply(a: Vertex, b: Vertex): LineSegment = new LineSegment(a, b)
 
   def vectorLength(a: Vertex, b: Vertex): Double =
-    Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2))
+    math.sqrt(math.pow(b.x - a.x, 2) + math.pow(b.y - a.y, 2))
 
   def middleOf(lineSegment: LineSegment): Point =
     new Point((lineSegment.a.x + lineSegment.b.x) / 2,
@@ -89,7 +89,7 @@ case class Curve(val a: Point, val b: Point,
                  val center: Point, val radius: Double)
 
 trait ClosedCurve extends Figure {
-  def segments: Set[Curve]
+  def segments: List[Curve]
 }
 
 class Circle(override val center: Point, override val radius: Double)
@@ -97,7 +97,7 @@ class Circle(override val center: Point, override val radius: Double)
     Point(center.x + radius, center.y)
     , center, radius) with ClosedCurve {
 
-  override def segments: Set[Curve] = Set(this)
+  override def segments: List[Curve] = List(this)
 
   override def area: Double = Math.PI * radius * radius
 
@@ -139,7 +139,7 @@ trait Quadrilateral[T <: Quadrilateral[T]] extends Polygon[T] {
 class Square(val a: Vertex, val b: Vertex, val c: Vertex, val d: Vertex)
   extends Quadrilateral[Square] {
 
-  import horstmann.s8.v1.LineSegment._
+  import LineSegment._
 
   val side = LineSegment(a, b).length
 
@@ -162,7 +162,7 @@ class Square(val a: Vertex, val b: Vertex, val c: Vertex, val d: Vertex)
     Vertex(vertex.scale(center, factor))
   })
 
-  override def move(newCenter: Point): Figure = {
+  override def move(newCenter: Point): Square = {
     val dX = newCenter.x - center.x
     val dY = newCenter.x - center.x
     translate(vertex => {
