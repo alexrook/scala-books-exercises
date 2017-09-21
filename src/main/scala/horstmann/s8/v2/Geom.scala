@@ -13,9 +13,12 @@ trait Coordinate[B, A <: Coordinate[B, A]] {
   def rotate(center: A, angle: B)(implicit num: FractionalExt[B]): A
 
   def scale(center: A, factor: B)(implicit num: FractionalExt[B]): A
+
+  def shift(vector: A)(implicit num: FractionalExt[B]): A
+
 }
 
-class Cartesian2D[N](val x: N, val y: N)
+case class Cartesian2D[N](val x: N, val y: N)
   extends Coordinate[N, Cartesian2D[N]] {
 
   override def distance(other: Cartesian2D[N])
@@ -34,26 +37,25 @@ class Cartesian2D[N](val x: N, val y: N)
 
   override def middleTo(other: Cartesian2D[N])(implicit num: FractionalExt[N]) = {
     import num.mkNumericOps
-    new Cartesian2D[N]((this.x - other.x) / num.fromInt(2),
-      (this.y - other.y) / num.fromInt(2))
+    new Cartesian2D[N]((this.x + other.x) / num.fromInt(2),
+      (this.y + other.y) / num.fromInt(2))
   }
 
   override def delta(other: Cartesian2D[N])(implicit num: FractionalExt[N]) = {
     import num.mkNumericOps
-    new Cartesian2D[N](this.x - other.x, this.y - other.y)
+    new Cartesian2D[N](other.x - this.x, other.y - this.y)
   }
 
   override def rotate(center: Cartesian2D[N], angle: N)(implicit num: FractionalExt[N]) = {
     import num.mkNumericOps
-    val dx = this.x - center.x
-    val dy = this.y - center.y
-    //point.x * cos(angle) - point.y * sin(angle)
-    val _x = dx * num.cos(angle) - dy * num.sin(angle) + center.x
-    //point.x * sin(angle) + point.y * cos(angle)
-    val _y = dx * num.sin(angle) + dy * num.cos(angle) + center.y
+    val d = delta(center)
+    //x * cos(angle) - y * sin(angle)
+    val _x = d.x * num.cos(angle) - d.y * num.sin(angle) + center.x
+    //x * sin(angle) + y * cos(angle)
+    val _y = d.x * num.sin(angle) + d.y * num.cos(angle) + center.y
 
 
-    new Cartesian2D(num.round(_x), num.round(_y))
+    new Cartesian2D(num.rounded(_x), num.rounded(_y))
   }
 
   override def scale(center: Cartesian2D[N], factor: N)(implicit num: FractionalExt[N]) = {
@@ -71,7 +73,13 @@ class Cartesian2D[N](val x: N, val y: N)
     new Cartesian2D[N](_x, _y)
   }
 
+
+  override def shift(vector: Cartesian2D[N])(implicit num: FractionalExt[N]) =
+    new Cartesian2D[N](num.plus(x, vector.x), num.plus(y, vector.y))
+
   override def toString = s"$x,$y"
+
+
 }
 
 
@@ -80,13 +88,15 @@ case class Point[N: FractionalExt, C <: Coordinate[N, C]](val dot: C) {
 
   def middleTo(other: Point[N, C]): Point[N, C] = Point(dot.middleTo(other.dot))
 
-  def move(coordinate: C): Point[N, C] = Point[N, C](coordinate)//todo: shift by vect
+  def shift(vector: C): Point[N, C] = Point[N, C](dot.shift(vector))
 
   def move(point: Point[N, C]): Point[N, C] = point
 
   def rotate(center: Point[N, C], angle: N): Point[N, C] = Point(dot.rotate(center.dot, angle))
 
   def scale(center: Point[N, C], factor: N): Point[N, C] = Point(dot.scale(center.dot, factor))
+
+  override def toString = s"($dot)"
 }
 
 case class LineSegment[N: FractionalExt, C <: Coordinate[N, C]]
@@ -126,7 +136,7 @@ trait Polygon[N, C <: Coordinate[N, C]]
 
   override def move(newCenter: Point[N, C])(implicit num: FractionalExt[N]): Polygon[N, C] = {
     val delta = center.dot.delta(newCenter.dot)
-    translate(point => point.move(delta))
+    translate(point => point.shift(delta))
   }
 
   override def scale(factor: N)(implicit num: FractionalExt[N]) =
@@ -153,7 +163,7 @@ abstract class Quadrilateral[N: FractionalExt, C <: Coordinate[N, C]]
   override def segments = List(LineSegment(a, b),
     LineSegment[N, C](a, d), LineSegment[N, C](b, c), LineSegment[N, C](d, c))
 
-
+  override def toString = s"a:$a,b:$b,c:$c,d:$d"
 }
 
 case class Square[N: FractionalExt, C <: Coordinate[N, C]](val a: Point[N, C],
@@ -175,60 +185,109 @@ case class Square[N: FractionalExt, C <: Coordinate[N, C]](val a: Point[N, C],
 
   override def center = c.middleTo(a)
 
+  override def toString = "square(" + super.toString + ")"
 }
 
 object Test extends App {
 
-  val cart1f = new Cartesian2D[Float](2, 2)
-  val cart2f = new Cartesian2D[Float](1, 2)
-
-  println(cart1f.distance(cart2f))
-
-
-  val cart1d = new Cartesian2D[Double](2.1, 2)
-  val cart2d = new Cartesian2D[Double](1, 3.1)
-
-  println(cart1d.distance(cart2d))
-  //---
-  val point1f: Point[Float, Cartesian2D[Float]] = Point(cart1f)
-  val point2f: Point[Float, Cartesian2D[Float]] = Point(cart2f)
-  val lineSegment = LineSegment(point1f, point2f)
-  println(lineSegment.length)
-  val point1d: Point[Double, Cartesian2D[Double]] = Point(new Cartesian2D[Double](2.1, 2))
-  val point2d: Point[Double, Cartesian2D[Double]] = Point(cart2d)
-  val lineSegment2 = LineSegment(point1d, point2d)
-  println(lineSegment2.length)
-  //--
   type Cartesian2dDouble = Cartesian2D[Double]
   type PointCartesian2dDouble = Point[Double, Cartesian2dDouble]
 
-  val point11d: PointCartesian2dDouble = Point(new Cartesian2dDouble(21.3d, 11))
-  val point22d: PointCartesian2dDouble = Point(new Cartesian2dDouble(14d, 1.3))
-  val lineSegment3 = LineSegment(point11d, point22d)
-  println(lineSegment3.length)
+  object step1 {
+    val cart1f = new Cartesian2D[Float](2, 2)
+    val cart2f = new Cartesian2D[Float](1, 2)
+    println(cart1f.distance(cart2f))
+    val cart1d = new Cartesian2D[Double](2.1, 2)
+    val cart2d = new Cartesian2D[Double](1, 3.1)
+    println(cart1d.distance(cart2d))
+    //---
+    val point1f: Point[Float, Cartesian2D[Float]] = Point(cart1f)
+    val point2f: Point[Float, Cartesian2D[Float]] = Point(cart2f)
+    val lineSegment = LineSegment(point1f, point2f)
+    println(lineSegment.length)
+    val point1d: Point[Double, Cartesian2D[Double]] = Point(new Cartesian2D[Double](2.1, 2))
+    val point2d: Point[Double, Cartesian2D[Double]] = Point(cart2d)
+    val lineSegment2 = LineSegment(point1d, point2d)
+    println(lineSegment2.length)
+    //--
+    val point11d: PointCartesian2dDouble = Point(new Cartesian2dDouble(21.3d, 11))
+    val point22d: PointCartesian2dDouble = Point(new Cartesian2dDouble(14d, 1.3))
+    val lineSegment3 = LineSegment(point11d, point22d)
+    println(lineSegment3.length)
+  }
+
   //--
-  val square: Square[Double, Cartesian2D[Double]] = new Square(
-    Point(new Cartesian2D(0d, 0)),
-    Point(new Cartesian2D(0, 2d)),
-    Point(new Cartesian2D(2d, 2)),
-    Point(new Cartesian2D(2, 0d)))
 
-  println(square)
-  println("area="+square.area)
-  println("side="+square.side)
-  println("perimeter="+square.perimeter)
-  println("center="+square.center)
+  def printSquare[N, C <: Coordinate[N, C]](square: Polygon[N, C])(implicit num: FractionalExt[N]): Unit = {
+    println(square)
+    println(s"side:${square.segments(0).length}, area:${square.area}, perimeter:${square.perimeter}, center:${square.center}")
+  }
 
-  val m1=square.move(Point(new Cartesian2dDouble(0,0)))
-  println(m1)
+  object moveScale {
+    val sq1: Square[Double, Cartesian2D[Double]] = new Square(
+      Point(new Cartesian2D(0d, 0)),
+      Point(new Cartesian2D(0, 2d)),
+      Point(new Cartesian2D(2d, 2)),
+      Point(new Cartesian2D(2, 0d)))
 
-  val squareF: Square[Float, Cartesian2D[Float]] = new Square(
-    Point(new Cartesian2D(0, 0)),
-    Point(new Cartesian2D(0.1f, 2)),
-    Point(new Cartesian2D(2, 2.4f)),
-    Point(new Cartesian2D(2, 0)))
+    printSquare(sq1)
 
-  println(squareF.area)
-  println(squareF.side)
-  println(squareF.perimeter)
+    val m1 = sq1.move(Point(new Cartesian2dDouble(0, 0)))
+    printSquare(m1)
+    val sq1_copy = m1.move(Point(new Cartesian2dDouble(1, 1)))
+    printSquare(sq1_copy)
+    assert(sq1 == sq1_copy)
+    printSquare(sq1.scale(2))
+
+    val squareF: Square[Float, Cartesian2D[Float]] = new Square(
+      Point(new Cartesian2D(0, 0)),
+      Point(new Cartesian2D(0.1f, 2)),
+      Point(new Cartesian2D(2, 2.4f)),
+      Point(new Cartesian2D(2, 0)))
+    printSquare(squareF)
+
+  }
+
+  object rotate {
+    val point1: Point[Double, Cartesian2D[Double]] = Point(Cartesian2D(0d, 3d))
+    val zeroPoint: Point[Double, Cartesian2D[Double]] = Point(Cartesian2D(0d, 0d))
+    val point1_rotate = point1.rotate(zeroPoint, math.toRadians(90))
+    val point2_rotate = point1.rotate(zeroPoint, Math.toRadians(180))
+    val point3_rotate = point1.rotate(zeroPoint, Math.toRadians(45))
+    println("before:" + point1)
+    println("rotate 90: " + point1_rotate)
+    println("rotate 180: " + point2_rotate)
+    println("rotate 45: " + point3_rotate)
+
+
+        val sqBD1: Square[BigDecimal, Cartesian2D[BigDecimal]] = new Square(
+          Point(new Cartesian2D(-2, -2)),
+          Point(new Cartesian2D(-2, 2)),
+          Point(new Cartesian2D(2, 2)),
+          Point(new Cartesian2D(2, -2)))
+
+        println("\n---square BD1---")
+//        printSquare(sqBD1)
+//        println("\nsquare BD1 rotate 90")
+//        printSquare(sqBD1.rotate(math.toRadians(90)))
+        println("\nsquare BD1 rotate 45")
+        printSquare(sqBD1.rotate(math.toRadians(45)))
+
+    //  val sqBD2: Square[BigDecimal, Cartesian2D[BigDecimal]] = new Square(
+    //    Point(new Cartesian2D(0, 0)),
+    //    Point(new Cartesian2D(0, 2)),
+    //    Point(new Cartesian2D(2, 2)),
+    //    Point(new Cartesian2D(2, 0)))
+    //
+    //  println("square BigDecimal")
+    //  printSquare(sqBD2)
+    //  println("square BigDecimal rotate 45")
+    //  printSquare(sqBD2.rotate(math.toRadians(45)))
+    //  println("square BigDecimal rotate 90")
+    //  printSquare(sqBD2.rotate(math.toRadians(90)))
+
+  }
+
+  rotate
+
 }

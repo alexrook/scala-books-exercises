@@ -215,9 +215,11 @@ object Section8 extends App {
 
     val point1_rotate = point1.rotate(Point(0, 0), Math.toRadians(90))
     val point2_rotate = point1.rotate(Point(0, 0), Math.toRadians(180))
-    println("before:"+point1)
-    println("rotate 90: "+point1_rotate)
-    println("rotate 180: "+point2_rotate)
+    val point3_rotate = point1.rotate(Point(0, 0), Math.toRadians(45))
+    println("before:" + point1)
+    println("rotate 90: " + point1_rotate)
+    println("rotate 180: " + point2_rotate)
+    println("rotate 45: " + point3_rotate)
   }
 
   //  l8.l8x

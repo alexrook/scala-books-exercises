@@ -11,7 +11,7 @@ class Point(val x: Double, val y: Double) {
     val _y = dx * math.sin(angle) + dy * math.cos(angle) + center.y
 
     //round is  try to avoid cos(90) problem
-    Point(math.round(_x), math.round(_y))
+    Point(_x, _y)
   }
 
   def scale(center: Point, factor: Double): Point = {

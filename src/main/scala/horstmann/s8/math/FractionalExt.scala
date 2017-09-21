@@ -1,10 +1,13 @@
 package horstmann.s8.math
 
 //http://matheusdev.tumblr.com/post/51071594017/scala-and-extending-numerict
-
 import scala.math.Numeric._
 
 trait FractionalExt[T] extends Fractional[T] {
+
+  protected var roundingMode: BigDecimal.RoundingMode.RoundingMode = BigDecimal.RoundingMode.HALF_UP
+
+  protected var scale: Int = 4
 
   def sqrt(v: T): T
 
@@ -12,7 +15,15 @@ trait FractionalExt[T] extends Fractional[T] {
 
   def sin(v: T): T
 
-  def round(v: T): T
+  def round(v: T): Long
+
+  def rounded(v: T): T
+
+  def setScale(scale: Int, roundingMode: BigDecimal.RoundingMode.RoundingMode): Unit = {
+    this.scale = scale
+    this.roundingMode = roundingMode
+  }
+
 
 }
 
@@ -36,7 +47,10 @@ object FractionalExt {
 
     override def sin(v: Float): Float = math.sin(v).toFloat
 
-    override def round(v: Float): Float = math.round(v).toFloat
+    override def round(v: Float): Long = math.round(v)
+
+    override def rounded(v: Float): Float = BigDecimal.decimal(v).setScale(scale, roundingMode).toFloat
+
   }
 
   implicit object DoubleIsFractionalExt extends DoubleIsFractional
@@ -49,8 +63,30 @@ object FractionalExt {
 
     override def sin(v: Double): Double = math.sin(v)
 
-    override def round(v: Double): Double = math.round(v).toDouble
+    override def round(v: Double): Long = math.round(v)
+
+    override def rounded(v: Double): Double = BigDecimal.decimal(v).setScale(scale, roundingMode).toDouble
   }
+
+  implicit object BigDecimalIsFractionalExt extends BigDecimalIsFractional
+    with FractionalExt[BigDecimal]
+    with Ordering.BigDecimalOrdering {
+
+    override def sqrt(v: BigDecimal): BigDecimal =
+      BigDecimal.decimal(math.sqrt(v.doubleValue()))
+
+    override def cos(v: BigDecimal): BigDecimal =
+      BigDecimal.decimal(math.cos(v.doubleValue()))
+
+    override def sin(v: BigDecimal): BigDecimal =
+      BigDecimal.decimal(math.sin(v.doubleValue()))
+
+    override def round(v: BigDecimal): Long = math.round(v.doubleValue())
+
+    override def rounded(v: BigDecimal): BigDecimal = v.setScale(scale, roundingMode)
+
+  }
+
 
 }
 
