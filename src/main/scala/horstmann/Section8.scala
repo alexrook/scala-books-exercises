@@ -1,6 +1,5 @@
 package horstmann
 
-
 /**
   * Created by moroz on 17.05.17.
   */
@@ -222,13 +221,96 @@ object Section8 extends App {
     println("rotate 45: " + point3_rotate)
   }
 
+
+  object q4 {
+
+    abstract class Item {
+
+      def price: BigDecimal
+
+      def description: String
+    }
+
+    case class SimpleItem(price: BigDecimal, description: String) extends Item
+
+    final class Bundle(var description: String) {
+
+      import scala.collection.mutable._
+
+      private[this] val items: ListBuffer[Item] = new ListBuffer[Item]
+
+      def add(item: Item): Unit = items += item
+
+      def get(index: Int): Item = items(index)
+
+      def contains(item: Item): Boolean = items.find(i => i.equals(item)).nonEmpty
+
+      def remove(index: Int) = items.remove(index)
+
+      def remove(item: Item) = items -= item
+
+      def sum: BigDecimal = items.foldLeft(BigDecimal(0))((acc, item) => acc + item.price)
+
+    }
+
+    val bundle = new Bundle("hipster staff")
+
+    bundle.add(SimpleItem(44.11, "notebook"))
+    bundle.add(SimpleItem(99.11, "cell phone"))
+    bundle.add(SimpleItem(99.99, "sandwich"))
+
+    assert(bundle.contains(SimpleItem(44.11, "notebook")))
+    println(bundle.sum)
+
+  }
+
+  object q5 {
+
+    abstract class Point() {
+      def x: Double
+
+      def y: Double
+    }
+
+    case class LabeledPoint(x: Double, y: Double, label: String) extends Point
+
+    println(LabeledPoint(0, 0, "zero"))
+    println(LabeledPoint(1, 1, "1,1 vector"))
+
+  }
+
+  object q6 {
+
+    import q5._
+
+    abstract class Shape {
+      def center: Point
+    }
+
+    case class Circle(radius: Double, center: Point) extends Shape
+
+    case class Rectangle(a: Point, b: Point, c: Point, d: Point) extends Shape {
+      override def center: Point = LabeledPoint((a.x + c.x) / 2, (a.y + c.y) / 2, "Rectangle center")
+    }
+
+    val rect=Rectangle(LabeledPoint(-3, 1, "A"),
+      LabeledPoint(-3, 3, "B"),
+      LabeledPoint(-1, 3, "C"),
+      LabeledPoint(-1, 1, "D"))
+
+    println(s"$rect, center:${rect.center}")
+  }
+
   //  l8.l8x
   // l8.l85
   //l8.l87
 
   //  q1
   //  q2
-  q3
+  //q3
+  q4
+  q5
+  q6
 }
 
 

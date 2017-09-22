@@ -1,4 +1,4 @@
-package horstmann.s8.math
+package cs.math
 
 //http://matheusdev.tumblr.com/post/51071594017/scala-and-extending-numerict
 import scala.math.Numeric._

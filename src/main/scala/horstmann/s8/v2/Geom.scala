@@ -1,6 +1,6 @@
 package horstmann.s8.geom.v2
 
-import horstmann.s8.math._
+import cs.math._
 
 
 trait Coordinate[B, A <: Coordinate[B, A]] {
