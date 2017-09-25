@@ -293,12 +293,73 @@ object Section8 extends App {
       override def center: Point = LabeledPoint((a.x + c.x) / 2, (a.y + c.y) / 2, "Rectangle center")
     }
 
-    val rect=Rectangle(LabeledPoint(-3, 1, "A"),
+    val rect = Rectangle(LabeledPoint(-3, 1, "A"),
       LabeledPoint(-3, 3, "B"),
       LabeledPoint(-1, 3, "C"),
       LabeledPoint(-1, 1, "D"))
 
     println(s"$rect, center:${rect.center}")
+  }
+
+  object q7 {
+
+    import java.awt.Rectangle
+
+
+    case class Square private(private val _x: Int,
+                              private val _y: Int,
+                              private val _width: Int) extends Rectangle(_x, _y, _width, _width) {
+
+      def this(width: Int) {
+        this(0, 0, width)
+      }
+
+      def this() {
+        this(0, 0, 0)
+      }
+
+      override def toString: String = s"Square[x=$x,y=$y,width=$width]"
+    }
+
+    object Square {
+
+      def apply(): Square = new Square
+
+      def apply(width: Int): Square = new Square(width)
+
+    }
+
+    val s1 = Square(1, 1, 3)
+    println(s1)
+    val s2 = Square
+    println(s2)
+    val s3 = Square(5)
+    println(s3)
+
+
+  }
+
+  object q9 {
+
+    class Creature {
+      def range: Int = 10
+
+      val env: Array[Int] = new Array[Int](range)
+    }
+
+    class Ant extends Creature {
+      override def range: Int = 2
+    }
+
+    //        //Solution
+    //    class AntFixed extends {
+    //      override val range: Int = 2
+    //    } with Creature
+
+    val ant = new Ant
+
+    println(ant.env.length)
+
   }
 
   //  l8.l8x
@@ -308,9 +369,12 @@ object Section8 extends App {
   //  q1
   //  q2
   //q3
-  q4
-  q5
-  q6
+  //  q4
+  //  q5
+  //  q6
+
+  //q7
+  q9
 }
 
 
