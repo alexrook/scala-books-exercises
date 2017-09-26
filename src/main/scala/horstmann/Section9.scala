@@ -1,11 +1,10 @@
 package horstmann
 
+import java.io.{FileOutputStream, PrintWriter}
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
-import java.io.File
-import java.nio.file.Files
-import java.util
-import java.nio.file.StandardOpenOption
+
+import scala.io.Source
 
 /**
   * Created by moroz on 05.07.17.
@@ -97,15 +96,75 @@ object Section9 extends App {
       println((c & 0xff).getClass) // int
     }
 
-      TestCharsets1
+    TestCharsets1
 
-//    TestBuff1
+    //    TestBuff1
     //    TestBuff2
     //l91
 
   }
 
-  l9
+  // l9
 
 
+
+  object q2 {
+
+
+    def replaceTabs(tabStep: Int, fileName: String): Unit = {
+      //https://ru.wikipedia.org/wiki/%D0%A2%D0%B0%D0%B1%D1%83%D0%BB%D1%8F%D1%86%D0%B8%D1%8F
+      val dst = new PrintWriter(new FileOutputStream(fileName + ".tabs.replaced"))
+      val source = Source.fromFile(fileName)
+
+      def writeLine(line: String): Unit = {
+        var counter = 0
+        line.foreach(char => {
+          counter += 1
+          if (char == '\t') {
+            while (counter < tabStep + 1) {
+              dst.print(" ")
+              counter += 1
+            }
+          } else {
+            dst.print(char)
+          }
+          if (counter >= tabStep) counter = 0
+        })
+        dst.println()
+      }
+
+
+      val lines = source.getLines()
+
+      while (lines.hasNext) {
+        writeLine(lines.next())
+      }
+
+      dst.flush()
+      dst.close()
+
+    }
+
+    replaceTabs(8, "out/production/resources/section9.q2.data")
+  }
+
+  object q3 {
+
+    import scala.collection.JavaConverters._
+
+    import java.util.Scanner
+    import java.io.File
+
+    def findWords(minWordLength: Int, fileName: String): Unit = {
+      val scanner = new Scanner(new File(fileName)).asScala
+      scanner.filter(_.length >= minWordLength).foreach(println(_))
+    }
+
+    findWords(12, "out/production/resources/section9.q3.data")
+
+  }
+  //q1 see io/revers junit tests
+  //q2
+
+  q3
 }
