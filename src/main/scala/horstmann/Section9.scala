@@ -1,6 +1,6 @@
 package horstmann
 
-import java.io.{FileOutputStream, PrintWriter, File => JFile}
+import java.io.{FileFilter, FileOutputStream, PrintWriter, File => JFile}
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
 import java.util.{Locale, Scanner => JScanner}
@@ -245,29 +245,52 @@ object Section9 extends App {
 
   object q8 {
 
-
     def printImgAttrs(url: String): Unit = {
-      val regex ="""\d+\.?\d*""".r
+      val regex ="""<img [^<>]*src=([^>\s]+)[^<>]*>""".r
       val source = Source.fromURL(url)
 
-      val tags=regex.findAllIn(source.toIndexedSeq)
-
-      for(tag<-tags) println(tag)
+      val tags = regex.findAllMatchIn(source.toIndexedSeq)
+      for (tag <- tags) println(tag.group(1))
 
     }
 
     printImgAttrs("http://horstmann.com/")
 
+  }
 
+  object q9 {
 
+    def countByExt(ext: String, topDirName: String): Unit = {
+
+      val topDir = new JFile(topDirName)
+
+      def loop(top: JFile, acc: Int): Int = {
+
+        val countFiles = top.listFiles(new FileFilter {
+          override def accept(pathname: JFile): Boolean = pathname.isFile && pathname.getName.endsWith(ext)
+        }).length
+
+        top.listFiles(new FileFilter {
+          override def accept(pathname: JFile): Boolean = pathname.isDirectory
+        }).foldLeft(acc + countFiles)((acc, file) => loop(file, acc))
+
+      }
+
+      println("files by ext:" + loop(topDir, 0))
+
+    }
+
+    countByExt(".class", "out/")
 
   }
 
   //q1 see io/revers junit tests
-  q2
-  q3
-  q4
-  q5
-  q6
-  q7
+  //  q2
+  //  q3
+  //  q4
+  //  q5
+  //  q6
+  //  q7
+  //q8
+  q9
 }

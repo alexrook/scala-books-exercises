@@ -53,7 +53,7 @@ public class FileReversLineReaderTest {
         byte[] lineSeparator = "\n".getBytes("UTF-8");
 
         FileReversLineReader instance = new FileReversLineReader(lineSeparator,
-                FileReversInputStream.apply("section9.q1.data"));
+                FileReversInputStream.apply("out/production/resources/section9.q1.data"));
 
         Option<List<Object>> optionLine = instance.readLine();
         assertTrue(optionLine.nonEmpty());//line with 0 chars also match
