@@ -3,7 +3,8 @@ package horstmann
 import java.io.{FileOutputStream, PrintWriter, File => JFile}
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
-import java.util.{Scanner => JScanner}
+import java.util.{Locale, Scanner => JScanner}
+
 import scala.io.Source
 
 /**
@@ -50,12 +51,11 @@ object Section9 extends App {
       var charset = Charset.forName("koi8-r")
 
       val bb1: ByteBuffer = charset.encode("\n")
-      println("--------TestBuff1------")
       //val a: Array[Byte] = new Array[Byte](bb1.limit)
       val bb2 = ByteBuffer.allocate(bb1.limit)
       //bb1.flip() //out flipped after encode!
       val bb3 = charset.encode("\n")
-
+      println("--------TestBuff1------")
 
       println(bb1.hasRemaining)
 
@@ -168,8 +168,7 @@ object Section9 extends App {
     import scala.collection.JavaConverters._
 
     def findWords(minWordLength: Int, fileName: String): Unit = {
-      val scanner =
-        new JScanner(new JFile(fileName)).asScala
+      val scanner = new JScanner(new JFile(fileName)).asScala
 
       scanner.filter(_.length >= minWordLength).foreach(println(_))
     }
@@ -200,8 +199,75 @@ object Section9 extends App {
 
   }
 
+  object q5 {
+
+    def printTwoExp(high: Int, fileName: String): Unit = {
+
+      val printer = new PrintWriter(new FileOutputStream(fileName))
+      val maxColWidth = math.pow(2, high).toString.length
+
+      for (exp <- 0 to high) {
+        val p: String = math.pow(2, exp).toString.padTo(maxColWidth, ' ')
+        val pe = 1 / math.pow(2, exp)
+        printer.println(s"$p\t$pe")
+      }
+      printer.close()
+    }
+
+    printTwoExp(20, s"$resourcesDir/section9.q5.out")
+  }
+
+  object q6 {
+
+    def findQuotes(fileName: String): Unit = {
+      val regex =""""+[^"]*"+""".r
+      val source = Source.fromFile(fileName)
+      regex.findAllIn(source.toIndexedSeq).foreach(println(_))
+    }
+
+    findQuotes(s"$resourcesDir/section9.q6.data")
+
+  }
+
+  object q7 {
+
+    import scala.collection.JavaConverters._
+
+    def printNotFractional(fileName: String): Unit = {
+      val regex ="""\d+\.?\d*""".r
+      val scanner = new JScanner(new JFile(fileName)).useLocale(Locale.US).asScala
+      scanner.filterNot(_.matches(regex.regex)).foreach(println(_))
+    }
+
+    printNotFractional(s"$resourcesDir/section9.q7.data")
+
+  }
+
+  object q8 {
+
+
+    def printImgAttrs(url: String): Unit = {
+      val regex ="""\d+\.?\d*""".r
+      val source = Source.fromURL(url)
+
+      val tags=regex.findAllIn(source.toIndexedSeq)
+
+      for(tag<-tags) println(tag)
+
+    }
+
+    printImgAttrs("http://horstmann.com/")
+
+
+
+
+  }
+
   //q1 see io/revers junit tests
   q2
   q3
   q4
+  q5
+  q6
+  q7
 }
