@@ -2,10 +2,7 @@ package horstmann
 
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
-import java.io.File
-import java.nio.file.Files
-import java.util
-import java.nio.file.StandardOpenOption
+import scala.io.Source
 
 /**
   * Created by moroz on 05.07.17.
@@ -97,11 +94,29 @@ object Section9 extends App {
       println((c & 0xff).getClass) // int
     }
 
-      TestCharsets1
+    object l92 {
 
-//    TestBuff1
+      val source = Source.fromFile("section9.q1.data") //impl Iterator[Char]
+
+      //      val buf = source.buffered
+      //
+      //      while (buf.hasNext) {
+      //        print(s" ${buf.head}${buf.next}")
+      //      }
+
+      val lines: Iterator[String] = source.getLines //Iterator[String]
+
+      for (line <- lines) println(line)
+      println("---")
+      source.reset() // do not work ?
+      for (char <- source if char != 10) print(char + "\t") //empty -> TraversableOnce
+    }
+
+    //    TestCharsets1
+    //    TestBuff1
     //    TestBuff2
-    //l91
+    //    l91
+    l92
 
   }
 
