@@ -3,8 +3,10 @@ package horstmann
 import java.io.{FileFilter, FileOutputStream, PrintWriter, File => JFile}
 import java.nio.charset.Charset
 import java.nio.{ByteBuffer, CharBuffer}
+import java.util
 import java.util.{Locale, Scanner => JScanner}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 /**
@@ -284,6 +286,61 @@ object Section9 extends App {
 
   }
 
+  object q10 {
+
+    @SerialVersionUID(33L) case class Person(name: String) extends Serializable {
+
+      import scala.collection.mutable.HashSet
+
+      private val friends = new HashSet[Person]()
+
+      def addFriend(other: Person): Unit = {
+        this.friends += other
+        other.addFriendOnce(this)
+      }
+
+      def addFriendOnce(other: Person): Unit = {
+        this.friends += other
+      }
+
+      def listFriends: List[Person] = friends.toList
+
+      override def toString: String = {
+        val friendsStr = listFriends.foldLeft("")((acc, person) => if (acc == "") person.name else acc + ", " + person.name)
+        s"$name with friends: " + friendsStr
+      }
+    }
+
+    val fred = Person("Fred")
+    val alice = Person("Alice")
+    val bob = Person("Bob")
+    val mike = Person("Mike")
+
+    fred.addFriend(alice)
+    fred.addFriend(mike)
+    bob.addFriend(mike)
+
+    val friends = Array(fred, alice, bob, mike)
+
+    import java.io._
+
+    val file = new File(s"$resourcesDir/friends.out")
+
+    val out = new ObjectOutputStream(new FileOutputStream(file))
+
+    out.writeObject(friends)
+
+    out.flush()
+    out.close()
+
+    val input = new ObjectInputStream(new FileInputStream(file))
+
+    val restoredFriendship = input.readObject().asInstanceOf[Array[Person]]
+
+    for (person <- restoredFriendship) println(person)
+
+  }
+
   //q1 see io/revers junit tests
   //  q2
   //  q3
@@ -291,6 +348,7 @@ object Section9 extends App {
   //  q5
   //  q6
   //  q7
-  //q8
-  q9
+  //  q8
+  //  q9
+  q10
 }
