@@ -278,14 +278,84 @@ object Section10 extends App {
       worker.log("l107:w1")
     }
 
-    //    l101
-    //    l102
-    //    l103
-    //    l104
-    //    l105
+    l101
+    l102
+    l103
+    l104
+    l105
     l106
     l107
   }
 
-  l10
+  //l10
+
+  object q1 {
+
+    import java.awt.Rectangle
+
+    import java.awt.geom.Ellipse2D
+
+    trait RectangleLike {
+
+      def getX: Double
+
+      def getY: Double
+
+      def getWidth: Double
+
+      def getHeight: Double
+
+      def setFrame(x: Double, y: Double, w: Double, h: Double)
+
+      def translate(dx: Int, dy: Int) = {
+        val rect = new Rectangle(getX.toInt, getY.toInt,
+          getWidth.toInt, getHeight.toInt)
+
+        rect.translate(dx, dy)
+
+        setFrame(rect.x, rect.y, rect.width, rect.height)
+
+      }
+
+      def grow(h: Int, v: Int) = {
+        val rect = new Rectangle(getX.toInt, getY.toInt,
+          getWidth.toInt, getHeight.toInt)
+
+        rect.grow(h, v)
+
+        setFrame(rect.x, rect.y, rect.width, rect.height)
+      }
+
+    }
+
+    val egg = new Ellipse2D.Double(5, 10, 20, 30) with RectangleLike
+    egg.translate(10, -10)
+    egg.grow(10, 20)
+  }
+
+  object q2 {
+
+    import java.awt.Point
+    import scala.math.Ordered
+
+    class OrderedPoint(x: Int, y: Int) extends Point(x, y) with Ordered[Point] {
+      override def compare(that: Point): Int = if ((this.x < that.x) || ((this.x == that.x) && (this.y < that.y))) -1
+      else if ((this.x == that.x) && (this.y == that.y)) 0
+      else 1
+    }
+
+    val p1 = new OrderedPoint(1, 2)
+    val p2 = new OrderedPoint(2, 2)
+    val p3 = new OrderedPoint(1, 2)
+    val p4 = new OrderedPoint(2, 1)
+
+    println(p1.compare(p2))
+    println(p1.compare(p3))
+    println(p1.compare(p4))
+    println(p2.compare(p4))
+
+  }
+
+  //q1
+  q2
 }
