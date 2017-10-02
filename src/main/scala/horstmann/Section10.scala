@@ -1,7 +1,5 @@
 package horstmann
 
-import horstmann.Section10.l10.l104.{ConsoleLogger, ShortLogger, TimeStampLogger, Worker}
-
 object Section10 extends App {
 
   object l10 {
@@ -165,7 +163,8 @@ object Section10 extends App {
       //Anonymous>>(ConsoleLogger>>Logger)>>(Worker>>Logger)>>(Anonymous block)=
       //Anonymous>>ConsoleLogger>>Worker>>Logger>>(Anonymous block)
       //constructor chain: (Anonymous block)>>Logger>>Worker>>ConsoleLogger>>Anonymous
-      val forward = new {//Anonymous block
+      val forward = new {
+        //Anonymous block
         val some = "some"
       } with Worker with ConsoleLogger
 
@@ -173,10 +172,119 @@ object Section10 extends App {
       println(forward.getClass.getName)
     }
 
-    //l101
-    l102
-    l103
-    l104
+    object l105 {
+
+      class Base {
+        println("Base Constructor")
+        var i: Int = _
+
+        def get(): Int = {
+          i += 1
+          i
+        }
+      }
+
+      trait Logger {
+        println("Logger constructor")
+
+        def log(msg: String)
+      }
+
+      trait ConsoleLogger extends Base with Logger {
+        println("ConsoleLogger constructor")
+
+        override def log(msg: String): Unit = println(get() + ":" + msg)
+      }
+
+      abstract class WorkerBase extends Logger {
+        def work(msg: String) = {
+          println("workerbase:" + msg)
+          log(msg)
+        }
+      }
+
+      //      Illegal inheritance; superclass WorkerBase
+      //      is not a subclass of the superclass Base
+      //        of the mixin trait ConsoleLogger
+      //      class Worker extends WorkerBase with ConsoleLogger {
+      //      class Worker extends WorkerBase with ConsoleLogger {
+      //        override def work(msg: String): Unit = super.work("worker>>" + msg)
+      //      }
+
+      //lin(Worker)=Worker>>lin(ConsoleLogger)=
+      //Worker>>ConsoleLogger>>Logger>>Base
+      class Worker extends ConsoleLogger {
+        println("Worker constructor")
+
+        def work(msg: String) = {
+          println(msg)
+          log(msg)
+        }
+      }
+
+      val worker = new Worker
+      worker.work("l105:w1")
+
+      val log = new ConsoleLogger {}
+      log.log(s"l105:${log.getClass.getName}")
+    }
+
+    object l106 {
+
+      class Worker {
+        println("Worker constructor")
+
+        def work(msg: String) = println("Worker:" + msg)
+      }
+
+      trait Logger {
+        this: Worker =>
+        println("Logger constructor")
+
+        def log(msg: String) = work("Logger:" + msg)
+      }
+
+      /*
+      *Illegal inheritance;
+       self-type WrongClz does not conform to Logger's
+       selftype Logger with Worker*/
+      //  class WrongClz extends Logger
+
+      //lin(WorkerEx)=WorkerEx>>lin(Logger)>>lin(Worker)=
+      //WorkerEx>>Logger>>Worker
+      class WorkerEx extends Worker with Logger {
+        println("WorkerEx constructor")
+      }
+
+      val workerEx = new WorkerEx
+      workerEx.log("l106:we1")
+
+    }
+
+    object l107 {
+
+      //цтклический структурный тип Section18
+      trait Logger {
+        this: {def getDate: String} =>
+        def log(msg: String) = println(getDate + ":" + msg)
+      }
+
+      class Worker extends Logger {
+        //Worker must conform {def getDate: String}
+        def getDate: String = new java.util.Date().toString
+      }
+
+      val worker = new Worker
+      worker.log("l107:w1")
+    }
+
+    //    l101
+    //    l102
+    //    l103
+    //    l104
+    //    l105
+    l106
+    l107
   }
 
   l10
