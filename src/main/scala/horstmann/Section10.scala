@@ -1,5 +1,7 @@
 package horstmann
 
+import java.io.FileOutputStream
+
 object Section10 extends App {
 
   object l10 {
@@ -55,7 +57,6 @@ object Section10 extends App {
       trait ShortLogger extends Logger {
         override def log(msg: String): Unit = super.log(msg.take(12) + "...")
       }
-
 
       class WorkerE extends Logger {
 
@@ -129,7 +130,6 @@ object Section10 extends App {
 
         abstract override def log(msg: String): Unit = super.log(msg.take(12) + "...")
       }
-
 
       val worker1 = new Worker with ConsoleLogger
       worker1.work("l104:w1")
@@ -263,7 +263,7 @@ object Section10 extends App {
 
     object l107 {
 
-      //цтклический структурный тип Section18
+      //циклический структурный тип Section18
       trait Logger {
         this: {def getDate: String} =>
         def log(msg: String) = println(getDate + ":" + msg)
@@ -356,6 +356,96 @@ object Section10 extends App {
 
   }
 
+  object q3 {
+    //trait BitSet extends SortedSet with BitSetLike //todo: lin(BitSet) == ???
+  }
+
+  object q4 {
+    println("-----------------------")
+
+    trait Logger {
+      //  println("Logger constr")
+
+      def log(msg: String): String
+    }
+
+    trait ConsoleLogger extends Logger {
+      //println("ConsoleLogger constr")
+
+      def log(msg: String): String = {
+        println(msg)
+        msg
+      }
+    }
+
+    trait FileLogger extends Logger {
+
+      import java.io.File
+
+      val logFile = File.createTempFile("section10-", ".log")
+      val out = new FileOutputStream(logFile)
+
+      def log(msg: String): String = {
+        out.write(msg.getBytes)
+        out.flush()
+        msg
+      }
+
+      def close() = out.close()
+    }
+
+    //    val wrlogger = new ConsoleLogger with FileLogger
+    //
+    //    wrlogger.log("section10:wrlogger:log11")
+    //    wrlogger.close()
+
+    trait CryptoLogger extends Logger {
+      // println("CryptoLogger constr")
+      val chipper = 3
+      val CHAR_MAX_VAL: Char = (math.pow(2, 16) - 1).toChar
+
+      abstract override def log(msg: String): String = super.log(encode(msg))
+
+      def decode(msg: String) = msg.map((char) => {
+        val ret = char - chipper
+        if (ret < 0) {
+          (ret + CHAR_MAX_VAL).toChar
+        } else ret.toChar
+      })
+
+      def encode(msg: String) = msg.map((char) => {
+        val ret = char + chipper
+        if (ret > CHAR_MAX_VAL) {
+          (ret - CHAR_MAX_VAL).toChar
+        } else ret.toChar
+      })
+
+    }
+
+    //lin(logger)=(Anonymous)>>lin(CryptoLogger)>>lin(ConsoleLogger)=
+    //Anonymous>>(CryptoLogger>>Logger)>>(ConsoleLogger>>Logger)=
+    //Anonymous>>CryptoLogger>>ConsoleLogger>>Logger
+    val logger = new ConsoleLogger with CryptoLogger
+    val encoded = logger.encode("Hello World")
+    val logged = logger.log("Hello World")
+    val decoded = logger.decode(encoded)
+    println("Hello World: " + logged + " : " + encoded + " : " + decoded)
+
+    //lin(wrongLogger)=(Anonymous)>>lin(ConsoleLogger)>>lin(CryptoLogger)=
+    //Anonymous>>(ConsoleLogger>>Logger)>>(CryptoLogger>>Logger)=
+    //Anonymous>>ConsoleLogger>>CryptoLogger>>Logger
+    //  val wrongLogger=new CryptoLogger with ConsoleLogger ???
+
+    val logger12 = new {
+      override val chipper = 12
+    } with ConsoleLogger with CryptoLogger
+    val encoded12 = logger12.encode("Hello World")
+    val decoded12 = logger12.decode(encoded12)
+    println("Hello World: " + encoded12 + " : " + decoded12)
+
+  }
+
   //q1
-  q2
+  // q2
+  q4
 }
