@@ -1,5 +1,6 @@
 package horstmann
 
+import java.beans.PropertyChangeListener
 import java.io.FileOutputStream
 
 object Section10 extends App {
@@ -354,6 +355,14 @@ object Section10 extends App {
     println(p1.compare(p4))
     println(p2.compare(p4))
 
+    val x1 = new OrderedPoint(1, 1)
+    val x2 = new OrderedPoint(1, -1)
+    val x3 = new OrderedPoint(2, 1)
+
+    println(x1 < x2)
+    println(x1 > x2)
+    println(x1 >= x3)
+
   }
 
   object q3 {
@@ -445,7 +454,121 @@ object Section10 extends App {
 
   }
 
+  object q5 {
+
+    import java.beans.{PropertyChangeSupport, PropertyChangeEvent}
+
+    trait PropertyChangeSupportLike {
+
+      def source: AnyRef
+
+      private val pcs = new PropertyChangeSupport(source)
+
+      //thank you Idea for delegate methods. I don't know how to implement q5 by another way
+      def addPropertyChangeListener(propertyName: String, listener: PropertyChangeListener): Unit =
+        pcs.addPropertyChangeListener(propertyName, listener)
+
+      def fireIndexedPropertyChange(propertyName: String, index: Int, oldValue: scala.Any, newValue: scala.Any): Unit =
+        pcs.fireIndexedPropertyChange(propertyName, index, oldValue, newValue)
+
+      def fireIndexedPropertyChange(propertyName: String, index: Int, oldValue: Boolean, newValue: Boolean): Unit =
+        pcs.fireIndexedPropertyChange(propertyName, index, oldValue, newValue)
+
+      def firePropertyChange(event: PropertyChangeEvent): Unit =
+        pcs.firePropertyChange(event)
+
+      def hasListeners(propertyName: String): Boolean =
+        pcs.hasListeners(propertyName)
+
+      def firePropertyChange(propertyName: String, oldValue: Int, newValue: Int): Unit =
+        pcs.firePropertyChange(propertyName, oldValue, newValue)
+
+      def firePropertyChange(propertyName: String, oldValue: scala.Any, newValue: scala.Any): Unit =
+        pcs.firePropertyChange(propertyName, oldValue, newValue)
+
+      def firePropertyChange(propertyName: String, oldValue: Boolean, newValue: Boolean): Unit =
+        pcs.firePropertyChange(propertyName, oldValue, newValue)
+
+      def fireIndexedPropertyChange(propertyName: String, index: Int, oldValue: Int, newValue: Int): Unit =
+        pcs.fireIndexedPropertyChange(propertyName, index, oldValue, newValue)
+
+      def getPropertyChangeListeners: Array[PropertyChangeListener] = pcs.getPropertyChangeListeners
+
+      def removePropertyChangeListener(propertyName: String, listener: PropertyChangeListener): Unit =
+        pcs.removePropertyChangeListener(propertyName, listener)
+
+      def getPropertyChangeListeners(propertyName: String): Array[PropertyChangeListener] =
+        pcs.getPropertyChangeListeners(propertyName)
+
+      def addPropertyChangeListener(listener: PropertyChangeListener): Unit =
+        pcs.addPropertyChangeListener(listener)
+
+      def removePropertyChangeListener(listener: PropertyChangeListener): Unit =
+        pcs.removePropertyChangeListener(listener)
+    }
+
+
+    //lin(Worker)=Worker>>lin(PropertyChangeSupportLike)=Worker>>PropertyChangeSupportLike
+    //constructor chain=PropertyChangeSupportLike->Worker
+    class Worker(private var _a: String) extends PropertyChangeSupportLike {
+
+      override def source = this
+
+      def a = _a
+
+      def a_=(v: String): Unit = {
+        firePropertyChange("a", _a, v)
+        this._a = v
+      }
+
+      override def toString: String = "Worker"
+    }
+
+    val worker = new Worker("A")
+    worker.addPropertyChangeListener("a",
+      (evt: PropertyChangeEvent) => println(evt.getSource + "." +
+        evt.getPropertyName + ":" + evt.getOldValue +
+        "=>" + evt.getNewValue))
+    worker.a = "B"
+    worker.a = "C"
+
+    import java.awt.Point
+
+    class PointExt(_x: Int, _y: Int) extends Point(_x, _y) with PropertyChangeSupportLike {
+      override def source: AnyRef = this
+
+
+      private def firedChangeDec[T <: AnyVal](x: T, y: T, f: (T, T) => Unit) = {
+        firePropertyChange("x", this.x, x)
+        firePropertyChange("y", this.y, y)
+        f(x, y)
+      }
+
+      override def move(x: Int, y: Int): Unit = firedChangeDec(x, y, super.move)
+
+      override def setLocation(x: Double, y: Double) = firedChangeDec(x, y, (x: Double, y: Double) => super.setLocation(x, y))
+
+      override def translate(dx: Int, dy: Int): Unit = firedChangeDec(x, y, super.translate)
+    }
+
+    val point = new PointExt(1, 1)
+
+    point.addPropertyChangeListener("x", (evt: PropertyChangeEvent) => println(evt.getSource + "." +
+      evt.getPropertyName + ":" + evt.getOldValue +
+      "=>" + evt.getNewValue))
+
+    point.addPropertyChangeListener("y", (evt: PropertyChangeEvent) => println(evt.getSource + "." +
+      evt.getPropertyName + ":" + evt.getOldValue +
+      "=>" + evt.getNewValue))
+
+    point.move(2, 2)
+    point.x = 12
+    println(point)
+
+  }
+
   //q1
   // q2
-  q4
+  //q4
+  q5
 }
