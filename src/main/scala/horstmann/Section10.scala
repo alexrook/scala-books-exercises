@@ -573,34 +573,30 @@ object Section10 extends App {
 
     import java.io._
 
-    trait InputStreamLike extends InputStream
+    trait BufferedInputStreamLike {
 
-    trait BufferedInputStreamLike extends InputStreamLike {
+      this: InputStream =>
 
       val bis = new BufferedInputStream(this)
 
       override def read(): Int = {
         val ret = bis.read()
-        // println("buf read"+ret.toChar)
+     //   System.err.println("buf read:" + ret)
         ret
       }
-
     }
 
     //lin(io)=Anonymous>>lin(BufferedInputStreamLike)>>lin(FileInputStream)=
-    //Anonymous>>(BufferedInputStreamLike>>lin(InputStreamLike))>>(FileInputStream>>InputStream)=
-    //Anonymous>>(BufferedInputStreamLike>>(InputStreamLike>>InputStream))>>(FileInputStream>>InputStream)=
-    //Anonymous>>BufferedInputStreamLike>>InputStreamLike>>FileInputStream>>InputStream
-    //cc=InputStream->FileInputStream->InputStreamLike->BufferedInputStreamLike->Anonymous
-
+    //Anonymous>>BufferedInputStreamLike>>FileInputStream>>InputStream=
+    //cc=InputStream->FileInputStream->BufferedInputStreamLike->Anonymous
     val io = new FileInputStream(new File(s"$resourcesDir/section10.q7.data")) with BufferedInputStreamLike
-
     var byte = 0
     do {
       byte = io.read()
       if (byte > -1) print(byte.toChar)
 
     } while (byte > -1)
+    io.close()
 
   }
 
