@@ -581,7 +581,7 @@ object Section10 extends App {
 
       override def read(): Int = {
         val ret = bis.read()
-     //   System.err.println("buf read:" + ret)
+        //   System.err.println("buf read:" + ret)
         ret
       }
     }
@@ -589,7 +589,8 @@ object Section10 extends App {
     //lin(io)=Anonymous>>lin(BufferedInputStreamLike)>>lin(FileInputStream)=
     //Anonymous>>BufferedInputStreamLike>>FileInputStream>>InputStream=
     //cc=InputStream->FileInputStream->BufferedInputStreamLike->Anonymous
-    val io = new FileInputStream(new File(s"$resourcesDir/section10.q7.data")) with BufferedInputStreamLike
+    val io = new FileInputStream(new File(s"$resourcesDir/section10.q8.data")) with BufferedInputStreamLike
+
     var byte = 0
     do {
       byte = io.read()
@@ -600,9 +601,72 @@ object Section10 extends App {
 
   }
 
-  //q1
-  // q2
-  //q4
-  // q5
-  q8
+  object q9 {
+
+    import java.io._
+
+    trait Logger {
+      def log(msg: String)
+    }
+
+    trait StdErrLogger extends Logger {
+      override def log(msg: String): Unit = System.err.println(msg)
+    }
+
+    trait FileLogger extends Logger {
+
+      def logFileName: String
+
+      val out = new PrintWriter(new FileOutputStream(logFileName))
+
+      override def log(msg: String): Unit = out.println(msg)
+
+      def closeLog() = {
+        out.flush()
+        out.close()
+      }
+    }
+
+    trait BufferedInputStreamLike extends Logger {
+
+      this: InputStream =>
+
+      val bis = new BufferedInputStream(this)
+
+      override def read(): Int = {
+        val ret = bis.read()
+        log("buf read:" + ret)
+        ret
+      }
+    }
+
+    val io = new {
+      val logFileName = s"$resourcesDir/section10.q9.log"
+    } with FileInputStream(new File(s"$resourcesDir/section10.q8.data"))
+      with BufferedInputStreamLike with FileLogger
+
+    var byte = 0
+    do {
+      byte = io.read()
+      if (byte > -1) print(byte.toChar)
+
+    } while (byte > -1)
+    io.closeLog()
+    io.close()
+
+    import scala.io.Source
+
+    val log= Source.fromFile(s"$resourcesDir/section10.q9.log")
+    for (line <- log.getLines()) println(line)
+    log.close()
+
+
+  }
+
+  //  q1
+  //  q2
+  //  q4
+  //  q5
+  //  q8
+  q9
 }
