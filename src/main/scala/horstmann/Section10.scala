@@ -656,10 +656,39 @@ object Section10 extends App {
 
     import scala.io.Source
 
-    val log= Source.fromFile(s"$resourcesDir/section10.q9.log")
+    val log = Source.fromFile(s"$resourcesDir/section10.q9.log")
     for (line <- log.getLines()) println(line)
     log.close()
 
+  }
+
+  object q10 {
+
+    import java.io.{InputStream, FileInputStream}
+
+    trait IterableInputStream extends InputStream with Iterable[Byte] {
+
+      outer =>
+
+      override def iterator: Iterator[Byte] = new Iterator[Byte] {
+
+        var nextByte = outer.read()
+
+        override def hasNext: Boolean = nextByte > -1
+
+        override def next(): Byte = {
+          val ret = nextByte
+          nextByte = outer.read()
+          ret.toByte
+        }
+      }
+
+    }
+
+    val src = new FileInputStream(s"$resourcesDir/section10.q10.data")
+      with IterableInputStream
+
+    for (byte <- src) print(byte.toChar)
 
   }
 
@@ -668,5 +697,6 @@ object Section10 extends App {
   //  q4
   //  q5
   //  q8
-  q9
+  //  q9
+  q10
 }
