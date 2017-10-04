@@ -1,9 +1,8 @@
 package horstmann
 
-import java.beans.PropertyChangeListener
-import java.io.FileOutputStream
-
 object Section10 extends App {
+
+  val resourcesDir = "out/production/resources"
 
   object l10 {
 
@@ -389,7 +388,7 @@ object Section10 extends App {
 
     trait FileLogger extends Logger {
 
-      import java.io.File
+      import java.io._
 
       val logFile = File.createTempFile("section10-", ".log")
       val out = new FileOutputStream(logFile)
@@ -456,7 +455,7 @@ object Section10 extends App {
 
   object q5 {
 
-    import java.beans.{PropertyChangeSupport, PropertyChangeEvent}
+    import java.beans.{PropertyChangeSupport, PropertyChangeEvent, PropertyChangeListener}
 
     trait PropertyChangeSupportLike {
 
@@ -507,7 +506,6 @@ object Section10 extends App {
         pcs.removePropertyChangeListener(listener)
     }
 
-
     //lin(Worker)=Worker>>lin(PropertyChangeSupportLike)=Worker>>PropertyChangeSupportLike
     //constructor chain=PropertyChangeSupportLike->Worker
     class Worker(private var _a: String) extends PropertyChangeSupportLike {
@@ -537,7 +535,6 @@ object Section10 extends App {
     class PointExt(_x: Int, _y: Int) extends Point(_x, _y) with PropertyChangeSupportLike {
       override def source: AnyRef = this
 
-
       private def firedChangeDec[T <: AnyVal](x: T, y: T, f: (T, T) => Unit) = {
         firePropertyChange("x", this.x, x)
         firePropertyChange("y", this.y, y)
@@ -546,7 +543,8 @@ object Section10 extends App {
 
       override def move(x: Int, y: Int): Unit = firedChangeDec(x, y, super.move)
 
-      override def setLocation(x: Double, y: Double) = firedChangeDec(x, y, (x: Double, y: Double) => super.setLocation(x, y))
+      override def setLocation(x: Double, y: Double) =
+        firedChangeDec(x, y, (x: Double, y: Double) => super.setLocation(x, y))
 
       override def translate(dx: Int, dy: Int): Unit = firedChangeDec(x, y, super.translate)
     }
@@ -567,8 +565,48 @@ object Section10 extends App {
 
   }
 
+  object q7 {
+    //todo
+  }
+
+  object q8 {
+
+    import java.io._
+
+    trait InputStreamLike extends InputStream
+
+    trait BufferedInputStreamLike extends InputStreamLike {
+
+      val bis = new BufferedInputStream(this)
+
+      override def read(): Int = {
+        val ret = bis.read()
+        // println("buf read"+ret.toChar)
+        ret
+      }
+
+    }
+
+    //lin(io)=Anonymous>>lin(BufferedInputStreamLike)>>lin(FileInputStream)=
+    //Anonymous>>(BufferedInputStreamLike>>lin(InputStreamLike))>>(FileInputStream>>InputStream)=
+    //Anonymous>>(BufferedInputStreamLike>>(InputStreamLike>>InputStream))>>(FileInputStream>>InputStream)=
+    //Anonymous>>BufferedInputStreamLike>>InputStreamLike>>FileInputStream>>InputStream
+    //cc=InputStream->FileInputStream->InputStreamLike->BufferedInputStreamLike->Anonymous
+
+    val io = new FileInputStream(new File(s"$resourcesDir/section10.q7.data")) with BufferedInputStreamLike
+
+    var byte = 0
+    do {
+      byte = io.read()
+      if (byte > -1) print(byte.toChar)
+
+    } while (byte > -1)
+
+  }
+
   //q1
   // q2
   //q4
-  q5
+  // q5
+  q8
 }
