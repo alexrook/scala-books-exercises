@@ -353,19 +353,21 @@ object Section11 extends App {
 
   object q4 {
 
-    case class Money(private val _d: Int, private val _c: Int) {
+    class Money private(private var amount: Long) {
 
-      val c_IN_d = 100
+      import Money._
 
-      private val amount: Int = _d * c_IN_d + _c
+      def this(d: Long, c: Long) {
+        this(d * Money.c_IN_d + c)
+      }
 
-      val cent: Int = amount - dollar * c_IN_d
+      val cent: Long = amount - dollar * c_IN_d
 
-      def dollar: Int = amount / c_IN_d
+      def dollar: Long = amount / c_IN_d
 
-      def +(other: Money) = Money(dollar + other.dollar, cent + other.cent)
+      def +(other: Money) = new Money(amount + other.amount)
 
-      def unary_- = Money(-dollar, -cent)
+      def unary_- = new Money(-amount)
 
       def -(other: Money) = this + -other
 
@@ -373,16 +375,27 @@ object Section11 extends App {
 
       def >(other: Money) = amount > other.amount
 
+      def *(a: Double) = new Money((amount * a).toInt)
+
+      def /(a: Double) = new Money((amount / a).toInt)
+
       override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Money] &&
         (obj.asInstanceOf[Money].amount == amount)
+
+      override def toString: String = f"$$${amount/Money.c_IN_d.toDouble}%2.2f"
 
     }
 
 
     object Money {
-
+      val c_IN_d = 100
       val Zero = Money(0, 0)
-      val One = Money(0, 1)
+
+      val OneCent = Money(0, 1)
+
+      val OneDollar = Money(1, 0)
+
+      def apply(d: Int, c: Int) = new Money(d, c)
 
     }
 
@@ -399,8 +412,8 @@ object Section11 extends App {
     assert(Money(3, 275).cent == 75)
 
     //sum
-    assert(Money.Zero + Money.One == Money.One)
-    assert(Money.One + Money.One == Money(0, 2))
+    assert(Money.Zero + Money.OneCent == Money.OneCent)
+    assert(Money.OneCent + Money.OneCent == Money(0, 2))
     assert(Money(1, 75) + Money(0, 50) == Money(2, 25))
 
     //neg
@@ -411,11 +424,14 @@ object Section11 extends App {
 
 
     //compare
+    assert(Money.Zero.equals(0) == false)
     assert(Money(1, 75) > Money(0, 50))
     assert(Money(1, 75) < Money(3, 50))
     assert(Money(1, 475) > Money(5, 50))
     assert(Money(2, 331) == Money(5, 31))
 
+    println(Money(1, 75) / 2)
+    println(Money.OneDollar * 1000000)
   }
 
   //q1
