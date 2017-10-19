@@ -1,9 +1,5 @@
 package horstmann
 
-import horstmann.Section11.q3
-
-import scala.math.abs
-
 //https://stackoverflow.com/questions/7656937/valid-identifier-characters-in-scala
 /*
 
@@ -274,7 +270,7 @@ object Section11 extends App {
 
       import math._
 
-      def Zero = Fraction(0, 0)
+      val Zero = Fraction(0, 0)
 
       val One = Fraction(1, 1)
 
@@ -286,7 +282,7 @@ object Section11 extends App {
 
       def nonZero(a: Fraction) = !(isZero(a))
     }
-    
+
     println(Fraction(15, -6)) // -5/2
     println("2/2=" + Fraction(2, 2))
     println("0/0=" + Fraction(0, 0))
@@ -350,7 +346,7 @@ object Section11 extends App {
     assert(Fraction(1, 2) - -Fraction(1, 2) == Fraction.One)
 
     // ++ :-)
-    println("1/2+1="+(Fraction(1, 2) ++))
+    println("1/2+1=" + (Fraction(1, 2) ++))
     assert(((Fraction(1, 2) ++) ++) == Fraction(5, 2))
 
   }
