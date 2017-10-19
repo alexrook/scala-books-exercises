@@ -1,5 +1,7 @@
 package horstmann
 
+import horstmann.Section11.q3
+
 import scala.math.abs
 
 //https://stackoverflow.com/questions/7656937/valid-identifier-characters-in-scala
@@ -238,8 +240,8 @@ object Section11 extends App {
 
       import Fraction._
 
-      private val num = if (d == 0) 1 else n * sign(d) / gcd(n, d)
-      private val den = if (d == 0) 0 else d * sign(d) / gcd(n, d)
+      private val num: Int = if (d == 0) 0 else n * sign(d) / gcd(n, d)
+      private val den: Int = if (d == 0) 1 else d * sign(d) / gcd(n, d)
 
       override def toString: String = s"$num/$den"
 
@@ -249,50 +251,107 @@ object Section11 extends App {
           (den == obj.asInstanceOf[Fraction].den)
       }
 
-      //def +(other:Fraction)=
+      def *(other: Fraction): Fraction = Fraction(this.num * other.num, this.den * other.den)
 
-      def *(other: Fraction) = Fraction(this.num * other.num, this.den * other.den)
+      def *(a: Int): Fraction = Fraction(this.num * a, this.den)
 
-      def *(a: Int) = Fraction(this.num * a, this.den)
+      def /(other: Fraction): Fraction = if (nonZero(other)) Fraction(this.num * other.den, this.den * other.num)
+      else throw new ArithmeticException("division by zero")
 
-      def /(other: Fraction) = Fraction(this.num * other.den, this.den * other.num)
+      def /(a: Int): Fraction = if (a != 0) Fraction(this.num, this.den * a)
+      else throw new ArithmeticException("division by zero")
 
-      def /(a: Int) = Fraction(this.num, this.den * a)
+      def +(other: Fraction): Fraction = Fraction(num * other.den + den * other.num, den * other.den)
 
-      def +(other: Fraction) = Fraction(num * other.den + other.den * num, den * other.den)
+      def -(other: Fraction): Fraction = this + other * (-1)
 
-      def -(other: Fraction) = this + other * (-1)
+      def unary_- = Fraction(num, -den)
+
+      def ++ = this + Fraction.One
     }
 
     object Fraction {
 
       import math._
 
+      def Zero = Fraction(0, 0)
+
+      val One = Fraction(1, 1)
+
       def sign(a: Int) = if (a > 0) 1 else if (a < 0) -1 else 0
 
       def gcd(a: Int, b: Int): Int = if (b == 0) abs(a) else gcd(b, a % b)
+
+      def isZero(a: Fraction) = a == Zero
+
+      def nonZero(a: Fraction) = !(isZero(a))
     }
-
-    val f1 = Fraction(15, -6)
-    println(f1) // -5/2
+    
+    println(Fraction(15, -6)) // -5/2
+    println("2/2=" + Fraction(2, 2))
     println("0/0=" + Fraction(0, 0))
-    println(Fraction.gcd(2, 3))
-    println(Fraction.gcd(3, 3))
-    println(Fraction.gcd(6, 3))
-    println(Fraction.gcd(3, 6))
-    // '*'
-    println(Fraction(1, 2) * Fraction(1, 3))
-    println(Fraction(1, 2) * Fraction(0, 0))
-    println(Fraction(1, 2) * 2)
-    println(Fraction(1, 2) * 0)
-    // '/'
+    println("-1/-2=" + Fraction(-1, -2))
+    println("-1/2=" + Fraction(-1, 2))
+    println("1/-2=" + Fraction(1, -2))
+    println("unary - 1/2= " + (-Fraction(1, 2)))
 
-    println(Fraction(1, 2) / Fraction(1, 2)) // 1/1
-    println(Fraction(1, 2) / Fraction(0, 0)) // 1/1
-    println(Fraction(1, 2) / 2) // 1/4
+    assert(Fraction.gcd(2, 3) == 1)
+    assert(Fraction.gcd(3, 3) == 3)
+    assert(Fraction.gcd(6, 3) == 3)
+    assert(Fraction.gcd(3, 6) == 3)
 
-    assert(Fraction(1, 4) + Fraction(1, 4) == Fraction(1, 2)) // 1/2
-    assert(Fraction(1, 4) + Fraction(1, 4) == Fraction(1, 2)) // 1/2
+    // multiplication
+    assert(Fraction(1, 2) * Fraction(1, 3) == Fraction(1, 6))
+    assert(Fraction(1, 2) * Fraction(0, 0) == Fraction.Zero)
+    assert(Fraction(1, 2) * Fraction.Zero == Fraction.Zero)
+    assert(Fraction(1, 2) * Fraction.One == Fraction(1, 2))
+
+    assert(Fraction(1, 2) * 2 == Fraction.One)
+    assert(Fraction(1, 2) * 0 == Fraction.Zero)
+
+
+    // division
+    assert(Fraction(1, 2) / Fraction(1, 2) == Fraction.One) // 1/1
+    assert(Fraction(1, 2) / 2 == Fraction(1, 4))
+
+    assert(try {
+      println(Fraction(1, 2) / Fraction(0, 0)) // div by zero
+      false
+    } catch {
+      case _: ArithmeticException => {
+        println("exception 'division by zero fraction' throw")
+        true
+      }
+    })
+
+    assert(try {
+      println(Fraction(1, 2) / 0) // div by zero
+      false
+    } catch {
+      case _: ArithmeticException => {
+        println("exception 'division by zero' throw")
+        true
+      }
+    })
+
+    // '+'
+    assert(Fraction(1, 4) + Fraction(1, 4) == Fraction(1, 2))
+    assert(Fraction(1, 2) + Fraction(1, 2) == Fraction.One)
+    assert(Fraction(2, 3) + Fraction(4, 5) == Fraction(22, 15))
+    assert(Fraction(2, 3) + Fraction(1, 5) == Fraction(13, 15))
+    assert(Fraction(1, 2) + -Fraction(1, 2) == Fraction.Zero)
+
+    // '-'
+    assert(Fraction(1, 4) - Fraction(1, 4) == Fraction.Zero)
+    assert(Fraction(1, 2) - Fraction(1, 2) == Fraction.Zero)
+    assert(Fraction(1, 2) - Fraction(2, 4) == Fraction.Zero)
+    assert(Fraction(2, 3) - Fraction(4, 5) == -Fraction(2, 15))
+    assert(Fraction(2, 3) - Fraction(1, 5) == Fraction(7, 15))
+    assert(Fraction(1, 2) - -Fraction(1, 2) == Fraction.One)
+
+    // ++ :-)
+    println("1/2+1="+(Fraction(1, 2) ++))
+    assert(((Fraction(1, 2) ++) ++) == Fraction(5, 2))
 
   }
 
