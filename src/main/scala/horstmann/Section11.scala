@@ -351,7 +351,75 @@ object Section11 extends App {
 
   }
 
+  object q4 {
+
+    case class Money(private val _d: Int, private val _c: Int) {
+
+      val c_IN_d = 100
+
+      private val amount: Int = _d * c_IN_d + _c
+
+      val cent: Int = amount - dollar * c_IN_d
+
+      def dollar: Int = amount / c_IN_d
+
+      def +(other: Money) = Money(dollar + other.dollar, cent + other.cent)
+
+      def unary_- = Money(-dollar, -cent)
+
+      def -(other: Money) = this + -other
+
+      def <(other: Money) = amount < other.amount
+
+      def >(other: Money) = amount > other.amount
+
+      override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Money] &&
+        (obj.asInstanceOf[Money].amount == amount)
+
+    }
+
+
+    object Money {
+
+      val Zero = Money(0, 0)
+      val One = Money(0, 1)
+
+    }
+
+    // creation
+    val m075 = Money(0, 75)
+    assert(m075.dollar == 0)
+    assert(m075.cent == 75)
+    assert(Money(3, 75).dollar == 3)
+    assert(Money(3, 75).cent == 75)
+    assert(Money(75, 0).dollar == 75)
+    assert(Money(75, 0).cent == 0)
+
+    assert(Money(3, 275).dollar == 5)
+    assert(Money(3, 275).cent == 75)
+
+    //sum
+    assert(Money.Zero + Money.One == Money.One)
+    assert(Money.One + Money.One == Money(0, 2))
+    assert(Money(1, 75) + Money(0, 50) == Money(2, 25))
+
+    //neg
+    assert(Money(1, 75) - Money(0, 50) == Money(1, 25))
+    assert(Money(1, 75) - Money(2, 50) == -Money(0, 75))
+    assert(Money(1, 75) - Money(3, 50) == -Money(1, 75))
+    assert(Money(1, 75) - Money(1, 75) == Money.Zero)
+
+
+    //compare
+    assert(Money(1, 75) > Money(0, 50))
+    assert(Money(1, 75) < Money(3, 50))
+    assert(Money(1, 475) > Money(5, 50))
+    assert(Money(2, 331) == Money(5, 31))
+
+  }
+
   //q1
-  q2
-  q3
+  // q2
+  //q3
+  q4
 }
