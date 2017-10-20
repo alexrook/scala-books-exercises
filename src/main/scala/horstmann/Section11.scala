@@ -1,5 +1,7 @@
 package horstmann
 
+import scala.collection.mutable.ArrayBuffer
+
 //https://stackoverflow.com/questions/7656937/valid-identifier-characters-in-scala
 /*
 
@@ -305,7 +307,6 @@ object Section11 extends App {
     assert(Fraction(1, 2) * 2 == Fraction.One)
     assert(Fraction(1, 2) * 0 == Fraction.Zero)
 
-
     // division
     assert(Fraction(1, 2) / Fraction(1, 2) == Fraction.One) // 1/1
     assert(Fraction(1, 2) / 2 == Fraction(1, 4))
@@ -382,10 +383,9 @@ object Section11 extends App {
       override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Money] &&
         (obj.asInstanceOf[Money].amount == amount)
 
-      override def toString: String = f"$$${amount/Money.c_IN_d.toDouble}%2.2f"
+      override def toString: String = f"$$${amount / Money.c_IN_d.toDouble}%2.2f"
 
     }
-
 
     object Money {
       val c_IN_d = 100
@@ -422,7 +422,6 @@ object Section11 extends App {
     assert(Money(1, 75) - Money(3, 50) == -Money(1, 75))
     assert(Money(1, 75) - Money(1, 75) == Money.Zero)
 
-
     //compare
     assert(Money.Zero.equals(0) == false)
     assert(Money(1, 75) > Money(0, 50))
@@ -434,8 +433,75 @@ object Section11 extends App {
     println(Money.OneDollar * 1000000)
   }
 
+  object q5 {
+
+    case class Table(){
+
+      import scala.collection.mutable.ArrayBuffer
+
+      private val rows = ArrayBuffer.empty[ArrayBuffer[String]]
+
+      def |(data: String): Table = {
+        if (rows.isEmpty) tr()
+        td(data)
+        this
+      }
+
+      def ||(data: String) = {
+        tr()
+        td(data)
+        this
+      }
+
+      def tr(): Table = {
+        rows += ArrayBuffer.empty[String]
+        this
+      }
+
+      def td(data: String): Table = {
+        rows.last += data
+        this
+      }
+
+      override def toString: String = {
+        val ret = new StringBuilder
+        ret.append("<table>")
+        for (row <- rows) {
+          ret.append("<tr>")
+          for (cell <- row) {
+            ret.append("<td>")
+            ret.append(cell)
+            ret.append("</td>")
+          }
+          ret.append("</tr>")
+        }
+        ret.append("</table>")
+        ret.mkString
+      }
+    }
+
+    //creation
+    val table1 = new Table
+    //   println(table1)
+
+    // |
+    table1 | "aaa" | "bbb"
+    // println(table1)
+
+    // ||
+    table1.tr()
+    table1 | "ccc" | "ddd"
+    println(table1)
+
+    //question
+    val qt = Table() | "Java" | "Scala" || "Gosling" | "Odersky" || "JVM" | "JVM .Net"
+    println(qt)
+
+  }
+
   //q1
-  // q2
+  //q2
   //q3
-  q4
+  //q4
+  q5
 }
