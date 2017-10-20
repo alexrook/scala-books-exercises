@@ -435,7 +435,7 @@ object Section11 extends App {
 
   object q5 {
 
-    case class Table(){
+    case class Table() {
 
       import scala.collection.mutable.ArrayBuffer
 
@@ -499,9 +499,71 @@ object Section11 extends App {
 
   }
 
+  object q6 {
+
+    case class ASCIIArt(private val _art: String, var lineSeparator: String) {
+
+      private val art: Seq[String] = _art.split(lineSeparator)
+
+      private val maxLength: Int = art.maxBy(str => str.length).length
+
+      def &(other: ASCIIArt): ASCIIArt = {
+
+        val _art: String = art.map(s => s.padTo(maxLength, ' '))
+          .zipAll(other.art, "".padTo(maxLength, ' '), "")
+          .map(t => t._1 + t._2 + lineSeparator)
+          .mkString
+
+        ASCIIArt(_art, lineSeparator)
+      }
+
+      def ^(other: ASCIIArt): ASCIIArt = {
+        val _art: String = (art.map(s => s + lineSeparator) ++ other.art.map(s => s + lineSeparator)).mkString
+        ASCIIArt(_art, lineSeparator)
+      }
+
+      override def toString: String = art.map(s => s + lineSeparator).mkString
+    }
+
+    val art1 = ASCIIArt(
+      """|  ^_^
+         |( ' ' )
+         |(  -  )
+         |  |||
+         |(__|__)""".stripMargin, "\n")
+
+    val art2 = ASCIIArt(
+      """|  _______
+         | / Hello \
+         |<  Scala  |
+         | \ Coder /
+         |  ```````""".stripMargin, "\n")
+
+    val art3 = ASCIIArt(
+      """|33333
+         | 333
+         |  3""".stripMargin, "\n")
+
+    val art4 = ASCIIArt(
+      """|444444
+         |4    4
+         |4    4
+         |444444""".stripMargin, "\n")
+
+    print(art1)
+    print(art2)
+    print(art1 & art2)
+    print(art3 & art4)
+    print(art4 & art3)
+    print(art1 ^ art2)
+
+  }
+
   //q1
   //q2
   //q3
   //q4
-  q5
+  //q5
+  q6
+
 }
