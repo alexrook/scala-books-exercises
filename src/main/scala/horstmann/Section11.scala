@@ -559,11 +559,59 @@ object Section11 extends App {
 
   }
 
+  object q7 {
+
+    class BitSequence(private val _data: Long) {
+
+      private var data: Long = _data
+
+      def apply(index: Int): Long = {
+        checkIndex(index)
+        data >> index & 1L
+      }
+
+      def update(index: Int, bit: Long) = {
+        checkIndex(index)
+        if (bit > 0) {
+          data = data | (1L << index)
+        } else {
+          data = data & (-1L ^ (1L << index))
+        }
+      }
+
+      private def checkIndex(index: Int): Unit = {
+        if ((index < 0) || (index > 63))
+          throw new IllegalArgumentException("index must be >0 and <64")
+      }
+
+    }
+
+    //get
+    val sec = new BitSequence(87L) //1010111
+    val checkA = Array[Long](1, 0, 1, 0, 1, 1, 1).reverse
+    for (i <- 0 until checkA.length) {
+      assert(sec(i) == checkA(i))
+    }
+
+    //update
+    val sec1 = new BitSequence(-1L) //11111...11111  for signed long
+
+    for (i <- 0 to 63 if i % 2 == 0) sec1(i) = 1 //must nothing change
+    for (i <- 0 until 64) {
+      assert(sec1(i) == 1)
+    }
+
+    for (i <- 0 to 63 if i % 2 == 0) sec1(i) = 0
+    for (i <- 0 until 64) {
+      if (i % 2 == 0) assert(sec1(i) == 0) else assert(sec1(i) == 1)
+    }
+  }
+
   //q1
   //q2
   //q3
   //q4
   //q5
-  q6
-
+  // q6
+  q7
 }
