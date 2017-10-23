@@ -636,6 +636,13 @@ object Section11 extends App {
       def forall(f: (this.type, Int, Int) => Boolean): Boolean =
         forall((col, row) => if (f(this, col, row)) true else false)
 
+      def foldRow[A](row: Int, a: A, f: (A, T) => A): A = {
+        def loop(ret: A, col: Int): A = if (col < cols) loop(f(ret, this (col, row)), col + 1) else ret
+
+        val r = loop(a, 0)
+        println("foldRow:" + r)
+        r
+      }
 
       def zero(implicit ev: Numeric[T]) = ev.zero
 
@@ -670,9 +677,9 @@ object Section11 extends App {
 
       def -(other: Matrix[T])(implicit ev: Numeric[T]) = this.+(other.negate()(ev))(ev)
 
-      def apply(row: Int, col: Int): T = data(row)(col)
+      def apply(col: Int, row: Int): T = data(row)(col)
 
-      def update(row: Int, col: Int, a: T) = data(row)(col) = a
+      def update(col: Int, row: Int, a: T) = data(row)(col) = a
 
       override def equals(obj: scala.Any): Boolean = if (obj.isInstanceOf[Matrix[T]]) {
         val other = obj.asInstanceOf[Matrix[T]]
@@ -714,6 +721,15 @@ object Section11 extends App {
     //    Matrix.printMatrix(m3)
     assert(m2 + m2 == m3)
     assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
+
+    //
+
+    val m4 = new Matrix[Double](3, 3).forEach((m, col, row) => m(col, row) = 1 + col)
+    Matrix.printMatrix(m4)
+    m4.forEach((m,col,row)=>if (row==1) print(m(col,row)+" ")) //FIXME
+    println(m4.foldRow(0, 0d, (ret: Double, v) => v + ret))
+    println(m4.foldRow(1, 0d, (ret: Double, v) => v + ret))
+    println(m4.foldRow(2, 0d, (ret: Double, v) => v + ret))
 
   }
 
