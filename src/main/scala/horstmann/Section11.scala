@@ -607,11 +607,122 @@ object Section11 extends App {
     }
   }
 
+  object q8 {
+
+    case class Matrix[T: Numeric](cols: Int, rows: Int) {
+
+      private val data: ArrayBuffer[ArrayBuffer[T]] = new ArrayBuffer(rows)
+
+      for (_ <- 0 until rows) {
+        val row = new ArrayBuffer[T](cols)
+        for (_ <- 0 until cols) row += zero
+        data += row
+      }
+
+      def forEach(f: (Int, Int) => Unit): Matrix[T] = {
+        for (col <- 0 until cols; row <- 0 until rows) f(col, row)
+        this
+      }
+
+      def forEach(f: (this.type, Int, Int) => Unit): Matrix[T] = forEach((col, row) => f(this, col, row))
+
+      def forall(f: (Int, Int) => Boolean): Boolean = {
+        forEach((col, row) => if (!f(col, row)) {
+          return false
+        })
+        true
+      }
+
+      def forall(f: (this.type, Int, Int) => Boolean): Boolean =
+        forall((col, row) => if (f(this, col, row)) true else false)
+
+
+      def zero(implicit ev: Numeric[T]) = ev.zero
+
+      def one(implicit ev: Numeric[T]) = ev.one
+
+      def negate()(implicit ev: Numeric[T]) = {
+        new Matrix[T](cols, rows)(ev).forEach((m, col, row) => m(col, row) = ev.negate(this (col, row)))
+      }
+
+      def *(k: T)(implicit ev: Numeric[T]) = {
+        forEach((col, row) => this (col, row) = ev.times(this (col, row), k))
+        this
+      }
+
+      def +(k: T)(implicit ev: Numeric[T]) = {
+        forEach((col, row) => this (col, row) = ev.plus(this (col, row), k))
+        this
+      }
+
+      def -(k: T)(implicit ev: Numeric[T]) = this.+(ev.negate(k))(ev)
+
+      def *(other: Matrix[T])(implicit ev: Numeric[T]) = {
+
+      }
+
+      def +(other: Matrix[T])(implicit ev: Numeric[T]) = {
+        if ((other.rows != rows) || (other.cols != cols))
+          throw new ArithmeticException("matrices has different size")
+        new Matrix[T](cols, rows)(ev).
+          forEach((m, col, row) => m(col, row) = ev.plus(this (col, row), other(col, row)))
+      }
+
+      def -(other: Matrix[T])(implicit ev: Numeric[T]) = this.+(other.negate()(ev))(ev)
+
+      def apply(row: Int, col: Int): T = data(row)(col)
+
+      def update(row: Int, col: Int, a: T) = data(row)(col) = a
+
+      override def equals(obj: scala.Any): Boolean = if (obj.isInstanceOf[Matrix[T]]) {
+        val other = obj.asInstanceOf[Matrix[T]]
+        other.cols == cols && other.rows == rows &&
+          forall((col, row) => this (col, row) == other(col, row))
+      } else false
+
+    }
+
+    object Matrix {
+      def ZERO[T: Numeric](rows: Int, cols: Int) = new Matrix[T](rows, cols)
+
+      def ONE[T: Numeric](rows: Int, cols: Int): Matrix[T] = ZERO(rows, cols).
+        forEach((ret, row, col) => if (row == col) ret(row, col) = ret.one)
+
+      def printMatrix[T: Numeric](m: Matrix[T]) = for (i <- 0 until m.rows) {
+        val line: StringBuffer = new StringBuffer()
+        for (j <- 0 until m.cols) line.append(m(i, j) + " ")
+        println(line.toString)
+      }
+    }
+
+    //square
+    assert(Matrix.ZERO[Int](4, 4).forall((m, i, j) => m(i, j) == 0) == true)
+    assert(Matrix.ZERO[Int](4, 4) == Matrix.ZERO[Int](4, 4))
+    Matrix.printMatrix(Matrix.ONE[Int](2, 2))
+
+    val m1 = new Matrix[Int](3, 3)
+    m1.forEach((col, row) => m1(col, row) = col + row)
+    Matrix.printMatrix(m1)
+
+    // + -
+    val m2 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = col + row)
+    Matrix.printMatrix(m2)
+    assert((m2 + Matrix.ZERO[Int](2, 2) == m2) && (Matrix.ZERO[Int](2, 2) + m2 == m2))
+    Matrix.printMatrix(m2 + m2)
+    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
+    val m3 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = (col + row) * 2)
+    //    Matrix.printMatrix(m3)
+    assert(m2 + m2 == m3)
+    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
+
+  }
+
   //q1
   //q2
   //q3
   //q4
   //q5
   // q6
-  q7
+  // q7
+  q8
 }
