@@ -636,12 +636,22 @@ object Section11 extends App {
       def forall(f: (this.type, Int, Int) => Boolean): Boolean =
         forall((col, row) => if (f(this, col, row)) true else false)
 
-      def foldRow[A](row: Int, a: A, f: (A, T) => A): A = {
+      def foldRowByValue[A](row: Int, a: A, f: (A, T) => A): A = {
         def loop(ret: A, col: Int): A = if (col < cols) loop(f(ret, this (col, row)), col + 1) else ret
 
-        val r = loop(a, 0)
-        println("foldRow:" + r)
-        r
+        loop(a, 0)
+      }
+
+      def foldRowByIndex[A](row: Int, a: A, f: (A, this.type, Int, Int) => A): A = {
+        def loop(ret: A, col: Int): A = if (col < cols) loop(f(ret, this, col, row), col + 1) else ret
+
+        loop(a, 0)
+      }
+
+      def foldCol[A](col: Int, a: A, f: (A, T) => A): A = {
+        def loop(ret: A, row: Int): A = if (row < rows) loop(f(ret, this (col, row)), row + 1) else ret
+
+        loop(a, 0)
       }
 
       def zero(implicit ev: Numeric[T]) = ev.zero
@@ -664,9 +674,23 @@ object Section11 extends App {
 
       def -(k: T)(implicit ev: Numeric[T]) = this.+(ev.negate(k))(ev)
 
-      def *(other: Matrix[T])(implicit ev: Numeric[T]) = {
+      def *(other: Matrix[T])(implicit ev: Numeric[T]) = if (cols == other.rows) {
+        val ret = new Matrix[T](other.cols, this.rows)(ev)
+        for (mr <- 0 until ret.rows; mc <- 0 until ret.cols) {
+          ret(mc, mr) = this.foldRowByIndex[T](
+            mr, ev.zero,
+            (acc: T, these, col, row) => {
 
-      }
+              val th = these(col, row)
+              val oth = other(row, col)
+              val times = ev.times(these(col, row), other(row, col))
+              val pls = ev.plus(acc, ev.times(these(col, row), other(row, col)))
+              pls
+
+            })
+        }
+        ret
+      } else throw new ArithmeticException("matrices has different size")
 
       def +(other: Matrix[T])(implicit ev: Numeric[T]) = {
         if ((other.rows != rows) || (other.cols != cols))
@@ -695,41 +719,83 @@ object Section11 extends App {
       def ONE[T: Numeric](rows: Int, cols: Int): Matrix[T] = ZERO(rows, cols).
         forEach((ret, row, col) => if (row == col) ret(row, col) = ret.one)
 
-      def printMatrix[T: Numeric](m: Matrix[T]) = for (i <- 0 until m.rows) {
-        val line: StringBuffer = new StringBuffer()
-        for (j <- 0 until m.cols) line.append(m(i, j) + " ")
-        println(line.toString)
+      def printMatrix[T: Numeric](m: Matrix[T]) = {
+        val ret = new StringBuilder
+        for (row <- 0 until m.rows) {
+          m.foldRowByValue[StringBuilder](row, ret, (r, v) => r.append(v).append(' '))
+          ret.append("\n")
+        }
+        print(ret)
       }
     }
 
     //square
-    assert(Matrix.ZERO[Int](4, 4).forall((m, i, j) => m(i, j) == 0) == true)
-    assert(Matrix.ZERO[Int](4, 4) == Matrix.ZERO[Int](4, 4))
-    Matrix.printMatrix(Matrix.ONE[Int](2, 2))
-
-    val m1 = new Matrix[Int](3, 3)
-    m1.forEach((col, row) => m1(col, row) = col + row)
-    Matrix.printMatrix(m1)
-
-    // + -
-    val m2 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = col + row)
-    Matrix.printMatrix(m2)
-    assert((m2 + Matrix.ZERO[Int](2, 2) == m2) && (Matrix.ZERO[Int](2, 2) + m2 == m2))
-    Matrix.printMatrix(m2 + m2)
-    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
-    val m3 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = (col + row) * 2)
-    //    Matrix.printMatrix(m3)
-    assert(m2 + m2 == m3)
-    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
-
+    //    assert(Matrix.ZERO[Int](4, 4).forall((m, i, j) => m(i, j) == 0) == true)
+    //    assert(Matrix.ZERO[Int](4, 4) == Matrix.ZERO[Int](4, 4))
+    //    //Matrix.printMatrix(Matrix.ONE[Int](2, 2))
     //
-
-    val m4 = new Matrix[Double](3, 3).forEach((m, col, row) => m(col, row) = 1 + col)
-    Matrix.printMatrix(m4)
-    m4.forEach((m,col,row)=>if (row==1) print(m(col,row)+" ")) //FIXME
-    println(m4.foldRow(0, 0d, (ret: Double, v) => v + ret))
-    println(m4.foldRow(1, 0d, (ret: Double, v) => v + ret))
-    println(m4.foldRow(2, 0d, (ret: Double, v) => v + ret))
+    //    val m1 = new Matrix[Int](3, 3)
+    //    m1.forEach((col, row) => m1(col, row) = col + row)
+    //    //Matrix.printMatrix(m1)
+    //
+    //    // + -
+    //    val m2 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = col + row)
+    //    //Matrix.printMatrix(m2)
+    //    assert((m2 + Matrix.ZERO[Int](2, 2) == m2) && (Matrix.ZERO[Int](2, 2) + m2 == m2))
+    //    //Matrix.printMatrix(m2 + m2)
+    //    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
+    //    val m3 = new Matrix[Int](2, 2).forEach((m, col, row) => m(col, row) = (col + row) * 2)
+    //    //    Matrix.printMatrix(m3)
+    //    assert(m2 + m2 == m3)
+    //    assert(m2 - m2 == Matrix.ZERO[Int](2, 2))
+    //
+    //    //
+    //
+    //    val m4 = new Matrix[Double](3, 3).forEach((m, col, row) => m(col, row) = 1 + col)
+    //    // Matrix.printMatrix(m4)
+    //
+    //    assert(m4.foldRowByValue[Double](0, 0d, (ret, v) => v + ret) == 6)
+    //    assert(m4.foldCol[Double](2, 0d, (ret, v) => v + ret) == 9)
+    //
+    //    val m5 = Matrix.ZERO[Int](2, 3).forEach((m, col, row) => m(col, row) = 1 + col + row)
+    //    println("m5")
+    //    Matrix.printMatrix(m5)
+    //    val m6 = Matrix.ZERO[Int](3, 2)
+    //    println("m5*m6")
+    //    Matrix.printMatrix(m5 * m6)
+    //checked by http://ru.onlinemschool.com/math/library/matrix/multiply/
+    val m7 = new Matrix[Int](2, 3)
+    /*2  1
+     -3  0
+      4 -1*/
+    m7(0, 0) = 2
+    m7(0, 1) = -3
+    m7(0, 2) = 4
+    m7(1, 0) = 1
+    m7(1, 1) = 0
+    m7(1, 2) = -1
+    println("m7")
+    Matrix.printMatrix(m7)
+    val m8 = new Matrix[Int](3, 2)
+    /*
+     5 	-1 	 6
+    -3 	 0 	 7
+     */
+    m8(0, 0) = 5
+    m8(0, 1) = -3
+    m8(1, 0) = -1
+    m8(1, 1) = 0
+    m8(2, 0) = 6
+    m8(2, 1) = 7
+    println("m8")
+    Matrix.printMatrix(m8)
+    println("m7*m8")
+    /*
+    7  -2  19
+   -15  3  -18
+    23 -4  17
+     */
+    Matrix.printMatrix(m7 * m8) //fixme
 
   }
 
