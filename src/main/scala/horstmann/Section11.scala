@@ -684,7 +684,7 @@ object Section11 extends App {
               val th = these(col, row)
               val oth = other(row, col)
               val times = ev.times(these(col, row), other(row, col))
-              val pls = ev.plus(acc, ev.times(these(col, row), other(row, col)))
+              val pls = ev.plus(acc, ev.times(these(col, row), other(mc, col)))
               pls
 
             })
