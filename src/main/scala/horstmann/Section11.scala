@@ -1,7 +1,5 @@
 package horstmann
 
-import scala.collection.mutable.ArrayBuffer
-
 //https://stackoverflow.com/questions/7656937/valid-identifier-characters-in-scala
 /*
 
@@ -611,6 +609,8 @@ object Section11 extends App {
 
     case class Matrix[T: Numeric](cols: Int, rows: Int) {
 
+      import scala.collection.mutable.ArrayBuffer
+
       private val data: ArrayBuffer[ArrayBuffer[T]] = new ArrayBuffer(rows)
 
       for (_ <- 0 until rows) {
@@ -782,21 +782,127 @@ object Section11 extends App {
          |-3 	 0 	 7""".stripMargin)
     println("m8")
     Matrix.printMatrix(m8)
+
     val m7_x_m8 = Matrix[Int](
       """|7  -2  19
          |-15  3  -18
          |23 -4  17""".stripMargin)
     println("m7*m8")
     Matrix.printMatrix(m7 * m8)
+
     assert(m7_x_m8 == m7 * m8)
   }
 
-  //q1
-  //q2
-  //q3
-  //q4
-  //q5
-  // q6
-  // q7
-  q8
+  object q9_10 {
+
+    import java.io.File
+
+    class RichFile(private val self: File) {
+
+      import RichFile._
+
+      val ext: String = {
+        val doti = self.getName.lastIndexOf('.')
+        if (doti > -1) {
+          self.getName.substring(doti)
+        } else ""
+      }
+
+      val name: String = if (ext.length > 0) {
+        self.getName.dropRight(ext.length)
+      } else self.getName
+
+      val parent: String = if (self.getParent != null) {
+        self.getParent
+      } else ""
+
+      val parentSeq: Seq[String] = {
+        def loop(acc: Seq[String], file: File): Seq[String] = if (file != null) loop(file.getName +: acc, file.getParentFile) else acc
+
+        loop(Nil, self.getParentFile).filter(s => s.length > 0)
+      }
+
+      def ~(other: RichFile) = if (ext.length > 0) {
+        if (other.self.getName.endsWith(ext)) true else false
+      } else {
+        if (other.name.endsWith(name)) true else false
+      }
+
+      override def toString: String = s"RichFile[$self]"
+    }
+
+    object RichFile {
+
+      def apply(self: File): RichFile = new RichFile(self)
+
+      def apply(parent: String, name: String, ext: String): RichFile = new RichFile(new File(s"$parent/$name$ext"))
+
+      //      def unapply(file: RichFile): Option[(String, String, String)] = {
+      //        println("RichFile.unapply")
+      //        if ((file.parent.length > 0) && (file.name.length > 0) && (file.ext.length > 0))
+      //          Some((file.parent, file.name, file.ext))
+      //        else None
+      //      }
+
+      def unapplySeq(arg: RichFile): Option[Seq[String]] = {
+        import scala.collection.mutable.ArrayBuffer
+        val ret = new ArrayBuffer[String](3)
+        ret ++= arg.parentSeq ++= Array(arg.name, arg.ext).filter(s => s.length > 0)
+
+        Option(ret)
+      }
+
+    }
+
+    implicit def fileToRichFile(from: File) = RichFile(from)
+
+    def printInfo(file: File): Unit = {
+      println("\n" + file)
+      println("getPath=" + file.getPath)
+      println("getAbsolutePath=" + file.getAbsolutePath)
+      println("getParent=" + file.getParent)
+      println("getParentFile=" + file.getParentFile)
+      println("RichFile.name=" + file.name)
+      println("RichFile.ext=" + file.ext)
+      println("RichFile.parentSeq=" + file.parentSeq)
+      //unapply
+      RichFile(file) match {
+        case RichFile(path1, path2, name, ext) => println(s"RichFile.unapply:4=[$path1,$path2,$name,$ext]")
+        case RichFile(path, name, ext) => println(s"RichFile.unapply:3=[$path,$name,$ext]")
+        case RichFile(path, name) => println(s"RichFile.unapply:2=[$path,$name]")
+        case RichFile(path) => println(s"RichFile.unapply:1=[$path]")
+        case _ => println(27.toChar + "[31m"+ "unapply do not work"+27.toChar + "[0m")
+      }
+
+    }
+
+    //creation
+    var f0 = new File("home")
+    printInfo(f0)
+    var f01 = new File("/home")
+    printInfo(f01)
+    var f02 = new File("home.txt")
+    printInfo(f02)
+    var f1 = new File("/home/some.txt")
+    printInfo(f1)
+    var f2 = new File("home/cay")
+    printInfo(f2)
+    var f3 = new File("/home/cay/bar.txt")
+    printInfo(f3)
+    println(f1 ~ f2)
+    println(f1 ~ f3)
+
+  }
+
+  //  q1
+  //  q2
+  //  q3
+  //  q4
+  //  q5
+  //  q6
+  //  q7
+  //  q8
+
+  q9_10
+
 }
