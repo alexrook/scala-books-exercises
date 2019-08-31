@@ -21,15 +21,15 @@ public class ReversBufferTest {
         List<Byte> dst = new ArrayList<>(src.length);
 
         ByteBuffer buf = ByteBuffer.wrap(src);
-
-        Revers<Byte> instance = new ReversBuffer<>(buf, buf.limit() - 1);
-
-
-        while (instance.nonEmpty()) {
-            Byte obj = instance.head();
-            dst.add(obj);
-            instance = instance.tail();
-        }
+//
+//        Revers<Byte> instance = new ReversBuffer<>(buf, buf.limit() - 1);
+//
+//
+//        while (instance.nonEmpty()) {
+//            Byte obj = instance.head();
+//            dst.add(obj);
+//            instance = instance.tail();
+//        }
 
         assertEquals(src.length, dst.size());
 
@@ -51,15 +51,15 @@ public class ReversBufferTest {
 
         List<Byte> dst = new ArrayList<>(src.length);
         ByteBuffer buf = ByteBuffer.wrap(src);
-        Revers<Byte> instance = new ReversBuffer(buf, buf.limit() - 1);
-
-        while (instance.nonEmpty()) {
-            Byte obj = instance.head();
-            dst.add(obj);
-            instance = instance.tail();
-        }
-
-        assertTrue(instance.isEmpty());
+//        Revers<Byte> instance = new ReversBuffer(buf, buf.limit() - 1);
+//
+//        while (instance.nonEmpty()) {
+//            Byte obj = instance.head();
+//            dst.add(obj);
+//            instance = instance.tail();
+//        }
+//
+//        assertTrue(instance.isEmpty());
 
         assertEquals(src.length, dst.size());
         Collections.reverse(dst);

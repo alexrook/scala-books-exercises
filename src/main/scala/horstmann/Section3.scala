@@ -267,7 +267,7 @@ object Section3 extends App {
   val q6td02 = Array(1d, 3, 7, 4, 5)
   printArray(q6.sortAndRevers(q6td02)) //1,3,4,5,7 -> 7,5,4,3,1
   val q6td03 = ArrayBuffer((for (i <- 0 to 7) yield i): _*)
-  printArray(q6.sortAndRevers(q6td03))
+//  printArray(q6.sortAndRevers(q6td03))
 
   println("\n---q7")
   val q7td01 = Array(-1, -1, 1, 2, -3, 4, 5, 5)

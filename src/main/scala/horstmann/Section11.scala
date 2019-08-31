@@ -16,6 +16,7 @@ package horstmann
  or an underscore, period, semi-colon, comma, or back tick character.
 
 */
+import scala.language.postfixOps
 
 object Section11 extends App {
 
@@ -849,12 +850,12 @@ object Section11 extends App {
         val ret = new ArrayBuffer[String](3)
         ret ++= arg.parentSeq ++= Array(arg.name, arg.ext).filter(s => s.length > 0)
 
-        Option(ret)
+        Option(ret.toSeq)
       }
 
     }
 
-    implicit def fileToRichFile(from: File) = RichFile(from)
+    implicit def fileToRichFile(from: File): RichFile = RichFile(from)
 
     def printInfo(file: File): Unit = {
       println("\n" + file)

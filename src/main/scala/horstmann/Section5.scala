@@ -495,7 +495,7 @@ object Section5 extends App {
       }
     }
 
-    def testEmp(conv0:()=>Emp,conv1:(String,Double)=>Emp){
+    def testEmp(conv0:()=>Emp,conv1:(String,Double)=>Emp): Unit ={
 
       val john:Emp=conv0()
       println(john)

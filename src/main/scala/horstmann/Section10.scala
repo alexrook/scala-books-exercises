@@ -1,5 +1,5 @@
 package horstmann
-
+import scala.language.reflectiveCalls
 object Section10 extends App {
 
   val resourcesDir = "out/production/resources"
@@ -97,7 +97,7 @@ object Section10 extends App {
       trait Logger {
         println("Logger constructor")
 
-        def log(msg: String)
+        def log(msg: String):Unit
 
         def warn(msg: String) = log(s"WARN:$msg")
 
@@ -187,7 +187,7 @@ object Section10 extends App {
       trait Logger {
         println("Logger constructor")
 
-        def log(msg: String)
+        def log(msg: String):Unit
       }
 
       trait ConsoleLogger extends Base with Logger {
@@ -305,7 +305,7 @@ object Section10 extends App {
 
       def getHeight: Double
 
-      def setFrame(x: Double, y: Double, w: Double, h: Double)
+      def setFrame(x: Double, y: Double, w: Double, h: Double):Unit
 
       def translate(dx: Int, dy: Int) = {
         val rect = new Rectangle(getX.toInt, getY.toInt,
@@ -606,7 +606,7 @@ object Section10 extends App {
     import java.io._
 
     trait Logger {
-      def log(msg: String)
+      def log(msg: String):Unit
     }
 
     trait StdErrLogger extends Logger {

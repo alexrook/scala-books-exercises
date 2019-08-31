@@ -39,7 +39,7 @@ object FractionalExt {
 
   implicit object FloatIsFractionalExt extends FloatIsFractional
     with FractionalExt[Float]
-    with Ordering.FloatOrdering {
+    with Ordering.Float.TotalOrdering {
 
     override def sqrt(v: Float): Float = math.sqrt(v).toFloat
 
@@ -55,7 +55,7 @@ object FractionalExt {
 
   implicit object DoubleIsFractionalExt extends DoubleIsFractional
     with FractionalExt[Double]
-    with Ordering.DoubleOrdering {
+    with Ordering.Double.TotalOrdering {
 
     override def sqrt(v: Double): Double = math.sqrt(v)
 
@@ -72,16 +72,15 @@ object FractionalExt {
     with FractionalExt[BigDecimal]
     with Ordering.BigDecimalOrdering {
 
-    override def sqrt(v: BigDecimal): BigDecimal =
-      BigDecimal.decimal(math.sqrt(v.doubleValue()))
+    override def sqrt(v: BigDecimal): BigDecimal =   BigDecimal.decimal(math.sqrt(v.doubleValue))
 
     override def cos(v: BigDecimal): BigDecimal =
-      BigDecimal.decimal(math.cos(v.doubleValue()))
+      BigDecimal.decimal(math.cos(v.doubleValue))
 
     override def sin(v: BigDecimal): BigDecimal =
-      BigDecimal.decimal(math.sin(v.doubleValue()))
+      BigDecimal.decimal(math.sin(v.doubleValue))
 
-    override def round(v: BigDecimal): Long = math.round(v.doubleValue())
+    override def round(v: BigDecimal): Long = math.round(v.doubleValue)
 
     override def rounded(v: BigDecimal): BigDecimal = v.setScale(scale, roundingMode)
 

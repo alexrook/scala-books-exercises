@@ -127,7 +127,7 @@ object Section7 extends App {
 
     import random._
 
-    def testRets() {
+    def testRets()= {
       val count = 5
       println()
       var ints: List[Int] = List.empty

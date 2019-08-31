@@ -28,7 +28,7 @@ object Atom1 extends App {
   def idealWeight(height: Float) = 22 * height * height
 
 
-  def testDegress() {
+  def testDegress()= {
     for (i <- 0 to 450) println("Fahrenheit:" + i, "Celsius:" + degreesOfFahrenheitToCelsius(i),
       "Fahrenheit calc:" + degreesOfCelsiusToFahrenheit(degreesOfFahrenheitToCelsius(i)))
   }
@@ -37,7 +37,7 @@ object Atom1 extends App {
 
   def degreesOfCelsiusToFahrenheit(degrees: Float) = (degrees * (9 / 5f) + 32)
 
-  def showActivity(activity: String, distance: Float) {
+  def showActivity(activity: String, distance: Float)= {
 
     val iWillDoIt = activity match {
       case "running" => distance <= 6

@@ -19,22 +19,22 @@ public class ReversUnsignedIntBufferTest {
         List<Integer> dst = new ArrayList<>(src.length);
 
         ByteBuffer buf = ByteBuffer.wrap(src);
-
-        Revers instance
-                = new ReversUnsignedIntBuffer(buf, buf.limit() - 1);
-
-
-        while (instance.nonEmpty()) {
-            Integer obj = (Integer) instance.head();
-            dst.add(obj);
-            instance = instance.tail();
-        }
-
-        assertEquals(src.length, dst.size());
-
-        for (int k=0;k<expected.length;k++) {
-            assertEquals(expected[k],dst.get(k).intValue());
-        }
+//
+//        Revers instance
+//                = new ReversUnsignedIntBuffer(buf, buf.limit() - 1);
+//
+//
+//        while (instance.nonEmpty()) {
+//            Integer obj = (Integer) instance.head();
+//            dst.add(obj);
+//            instance = instance.tail();
+//        }
+//
+//        assertEquals(src.length, dst.size());
+//
+//        for (int k=0;k<expected.length;k++) {
+//            assertEquals(expected[k],dst.get(k).intValue());
+//        }
 
     }
 }

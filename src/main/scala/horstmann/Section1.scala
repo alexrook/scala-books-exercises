@@ -41,7 +41,7 @@ object Section1 extends App {
     import scala.util.Random
 
     println(BigInt(7) toString 2) //111
-    println("random dir name:" + (BigInt(Random nextInt) toString 36))
+    println("random dir name:" + (BigInt(Random.nextInt) toString 36))
   }
 
   object q9 {
