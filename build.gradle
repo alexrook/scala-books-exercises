@@ -25,7 +25,6 @@ tasks.withType(ScalaCompile) {
                                                  "-Ywarn-unused:locals",
                                                  "-Ywarn-unused:params",
                                                  "-Ywarn-unused:privates",
-                                                 "-Ypartial-unification",
                                                  "-encoding",
                                                  "utf8" ]
 }
