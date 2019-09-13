@@ -53,6 +53,7 @@ object ex32_trees {
     // you draw an analogy between this fold function and the left and right folds for List ?
     def map2[A, B](tree: Tree[A])(f: A => B): Tree[B] = fold(tree, None)(v => Leaf(f(v)): Tree[B])(Tree(_, _))
     def size2(tree:      Tree[_]): Int = fold(tree, None)(_ => 1)(_ + _)
+    def depth2(tree:     Tree[_]): Int = ???
 
     def apply[A](value: A): Tree[A] = Leaf(value)
     def apply[A](left:  Tree[A], right: Tree[A]): Tree[A] = Branch(left, right)
@@ -94,6 +95,18 @@ object tex32_trees extends App {
   assert(size2(Tree(1)) == 1)
   assert(size2(Tree(Tree(1), Tree(Tree(2), Tree(3)))) == 3)
   assert(size2(Branch(Leaf(1), Branch(Leaf(2), Leaf(3)))) == 3) //the same
+
+//  assert(depth2((Branch(Leaf(-1), Branch(Leaf(-42), Leaf(-3))))) == 2)
+//
+//  assert(
+//    depth2(Branch(Branch(Leaf(1), Leaf(1)), Branch(Leaf(-42), Leaf(-3))))
+//      == 2
+//  )
+//
+//  assert(
+//    depth2(Branch(Branch(Leaf(1), Branch(Leaf(1), Leaf(1))), Branch(Leaf(-42), Leaf(-3))))
+//      == 3
+//  )
 
   println("All Ok")
 
