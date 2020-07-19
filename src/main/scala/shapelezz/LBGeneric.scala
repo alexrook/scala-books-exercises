@@ -1,5 +1,0 @@
-package shapelezz
-
-class LBGeneric {
-
-}
