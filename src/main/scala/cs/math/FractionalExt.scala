@@ -1,6 +1,7 @@
 package cs.math
 
 //http://matheusdev.tumblr.com/post/51071594017/scala-and-extending-numerict
+
 import scala.math.Numeric._
 
 trait FractionalExt[T] extends Fractional[T] {
@@ -39,7 +40,7 @@ object FractionalExt {
 
   implicit object FloatIsFractionalExt extends FloatIsFractional
     with FractionalExt[Float]
-    with Ordering.Float.TotalOrdering {
+    with Ordering.FloatOrdering {
 
     override def sqrt(v: Float): Float = math.sqrt(v).toFloat
 
@@ -55,7 +56,7 @@ object FractionalExt {
 
   implicit object DoubleIsFractionalExt extends DoubleIsFractional
     with FractionalExt[Double]
-    with Ordering.Double.TotalOrdering {
+    with Ordering.DoubleOrdering {
 
     override def sqrt(v: Double): Double = math.sqrt(v)
 
@@ -72,7 +73,7 @@ object FractionalExt {
     with FractionalExt[BigDecimal]
     with Ordering.BigDecimalOrdering {
 
-    override def sqrt(v: BigDecimal): BigDecimal =   BigDecimal.decimal(math.sqrt(v.doubleValue))
+    override def sqrt(v: BigDecimal): BigDecimal = BigDecimal.decimal(math.sqrt(v.doubleValue))
 
     override def cos(v: BigDecimal): BigDecimal =
       BigDecimal.decimal(math.cos(v.doubleValue))
