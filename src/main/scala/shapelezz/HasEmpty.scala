@@ -1,6 +1,7 @@
 package shapelezz
 
-import shapeless.{::, Generic, HList, HNil, Lazy}
+import shapeless._
+import shapeless.Witness
 
 trait HasEmpty[T] {
   def empty: T
@@ -20,6 +21,10 @@ object HasEmpty {
 
   implicit val intHAsEmpty: HasEmpty[Int] =
     instance(0)
+
+  implicit def optionHasEmpty[T:HasEmpty]: HasEmpty[Option[T]] = instance(None)
+
+  implicit def listHasEmpty[T: HasEmpty]: HasEmpty[List[T]] = instance(List.empty[T])
 
   implicit def hListHasEmpty[H, T <: HList]
   (implicit headHasEmpty: Lazy[HasEmpty[H]],
@@ -45,13 +50,14 @@ object HasEmpty {
 }
 
 
-object lbApp extends App {
+object heApp extends App {
 
   case class Holder(a: Boolean, b: String)
 
-  implicit val genHolder = Generic[Holder]
+  //implicit val genHolder = Generic[Holder]
 
   val emHolder = HasEmpty[Holder]
+
 
   println(emHolder)
 
