@@ -39,7 +39,7 @@ object FractionalExt {
 
   implicit object FloatIsFractionalExt extends FloatIsFractional
     with FractionalExt[Float]
-    with Ordering.Float.TotalOrdering {
+    with Ordering.FloatOrdering {
 
     override def sqrt(v: Float): Float = math.sqrt(v).toFloat
 
@@ -55,7 +55,7 @@ object FractionalExt {
 
   implicit object DoubleIsFractionalExt extends DoubleIsFractional
     with FractionalExt[Double]
-    with Ordering.Double.TotalOrdering {
+    with Ordering.DoubleOrdering {
 
     override def sqrt(v: Double): Double = math.sqrt(v)
 

@@ -104,6 +104,7 @@ object extra extends App {
   case class Holder(custom: Custom)
 
   val holder1 = Holder(Custom("b", 7.7))
+  
 
   val genHolder1 = Generic[Holder]
 

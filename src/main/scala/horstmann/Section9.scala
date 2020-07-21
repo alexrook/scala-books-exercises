@@ -87,7 +87,7 @@ object Section9 extends App {
         buf.put(1.toByte)
         print(s"$x\t")
       }
-      println("\nposition:" + buf.position)
+      println("\nposition:" + buf.position())
 
     }
 

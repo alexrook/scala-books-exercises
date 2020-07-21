@@ -152,7 +152,7 @@ class FileReversInputStream(val file: File,
     readBuffer.clear()
     channel.read(readBuffer)
     readBuffer.flip()
-    unsignedBytes = new ReversUnsignedIntBuffer(readBuffer, readBuffer.limit - 1)
+    unsignedBytes = new ReversUnsignedIntBuffer(readBuffer, readBuffer.limit() - 1)
   }
 
   private def seek(): Unit = {

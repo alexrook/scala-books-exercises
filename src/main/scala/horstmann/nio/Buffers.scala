@@ -64,7 +64,7 @@ object BufferUtils {
     *         the same bytes in the same positions.
     */
   def compareBuffersHead(model: ByteBuffer, source: ByteBuffer, srcLimit: Int): Boolean =
-    (srcLimit <= model.limit) &&
+    (srcLimit <= model.limit()) &&
       loopBuffers(source, model, 0, srcLimit, (a, b) => a == b)
 
 }
