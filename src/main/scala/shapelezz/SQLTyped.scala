@@ -11,11 +11,13 @@ object SQLTyped extends App {
   import shapeless.{::, HList, HNil}
 
   trait OptionalField[T] {
-    def mayBeValue:  Option[T]
+    def mayBeValue: Option[T]
+
     def javaSqlType: Int
   }
 
   object OptionalField {
+
     implicit class optionIsOptionalField[T](v: Option[T]) {
 
       def withSqlType(sqlType: Int): OptionalField[T] = new OptionalField[T] {
@@ -24,6 +26,7 @@ object SQLTyped extends App {
         override def javaSqlType: Int = sqlType
       }
     }
+
   }
 
   trait SQLType[-T] {
@@ -65,7 +68,8 @@ object SQLTyped extends App {
       }
     }
 
-    implicit def genericIsSQLType[T, R](implicit gen: Generic.Aux[T,R], reprSQLType: Lazy[SQLType[R]]): SQLType[T] = instance {
+    implicit def genericIsSQLType[T, R](implicit gen: Generic.Aux[T, R],
+                                        reprSQLType: Lazy[SQLType[R]]): SQLType[T] = instance {
       case (stmt: PreparedStatement, index: Int, value: T) => reprSQLType.value.set(stmt, index, gen.to(value))
     } //TODO: fix or improve : the Type Astronaut’s: 31
 
@@ -73,14 +77,18 @@ object SQLTyped extends App {
       case (_: PreparedStatement, index: Int, _: HNil) => index
     }
 
-    implicit def hListIsSQLType[H, T <: HList](implicit extraHead: Lazy[SQLType[H]]/*без Lazy неработает see Type Astronaut’s: 37*/, extraTail: SQLType[T]): SQLType[H :: T] =
+    implicit def hListIsSQLType[H, T <: HList](
+                                                /*без Lazy неработает see Type Astronaut’s: 37*/
+                                                implicit extraHead: Lazy[SQLType[H]],
+                                                extraTail: SQLType[T]
+                                              ): SQLType[H :: T] =
       instance {
         case (stmt: PreparedStatement, index: Int, value: ::[H, T]) =>
           value match {
             case head :: tail => {
               val nextIndex: Int = extraHead.value.set(stmt, index, head)
               extraTail.set(stmt, nextIndex + 1, tail)
-              nextIndex+1
+              nextIndex + 1
 
             }
           }
@@ -93,7 +101,9 @@ object SQLTyped extends App {
   case class Holder(i: Int, s: String)
 
   object Holder {
+
     import SQLType._
+
     implicit val holderIsSQLType: SQLType[Holder] = instance {
       case (stmt: PreparedStatement, index: Int, value: Holder) => {
         stmt.setInt(index, value.i)
@@ -138,14 +148,14 @@ object SQLTyped extends App {
   val st2 = SQLType[Holder2]
 
   println(st2)
-//  Holder2(33L,"aaa")
-//
+  //  Holder2(33L,"aaa")
+  //
 
   val h2 = Holder2(23L, "aaa")
 
   //SQLType.genericIsSQLType[Holder2, Long :: String :: HNil](gen, SQLType[Long :: String :: HNil]).set(Stub.stmt, 1, h2)
-//  Stub.stmt.execute
-  execute( Holder2(11, "holder2-11") :: 711L :: HNil)
+  //  Stub.stmt.execute
+  execute(Holder2(11, "holder2-11") :: 711L :: HNil)
 
   execute(
     121L :: "12-HelloWorld-Some(Holder2(1,'holder2'))-7771" :: Holder2(1, "holder2") :: 7771L :: HNil
